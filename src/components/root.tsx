@@ -52,8 +52,8 @@ export default function Root(props: RootProps) {
       <Dialog.Root>
         <Dialog.Trigger ref={dialogTriggerRef} />
         <Dialog.Portal className="z-30">
-          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
-          <Dialog.Popup className="fixed top-1/2 left-1/2 -mt-8 flex flex-col w-[90%] max-h-125 md:lg:xl:w-4/6 overflow-hidden md:lg:xl:max-w-[calc(100vw-3rem)] md:lg:xl:max-h-[calc(90vh-3rem)] -translate-x-1/2 rounded-lg corner-squircle -translate-y-1/2 bg-neutral-50 text-neutral-950 border border-neutral-100 shadow shadow-black/20 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-15 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
+          <Dialog.Popup className="fixed bg-neutral-200 backdrop-blur-lg noise-subtle top-1/2 left-1/2 -mt-8 flex flex-col w-[90%] max-h-125 md:lg:xl:w-4/6 overflow-hidden md:lg:xl:max-w-[calc(100vw-3rem)] md:lg:xl:max-h-[calc(90vh-3rem)] -translate-x-1/2 rounded-lg corner-squircle -translate-y-1/2 text-neutral-950 border border-neutral-300 shadow shadow-black/20 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
             <div className="overflow-y-auto flex-1 py-6 px-6 pt-12 pb-8 md:px-10">
               <Switch value={activeView}>
                 {{

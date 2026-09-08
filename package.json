@@ -7,15 +7,22 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@hookform/resolvers": "^5.9.1",
+    "@libsql/client": "^0.18.0",
     "@next-safe-action/adapter-react-hook-form": "^2.1.0",
     "@solar-icons/react": "1.1.0",
     "@toolwind/corner-shape": "^0.0.8-3",
+    "better-auth": "^1.7.3",
     "date-fns": "^4.4.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "envalid": "^8.2.0",
     "motion": "^13.1.1",
     "next": "16.3.3",
     "next-safe-action": "^8.6.1",
@@ -23,6 +30,7 @@
     "react-day-picker": "^10.0.1",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.87.0",
+    "tailwindcss-noise": "^1.0.6",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -32,6 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "drizzle-kit": "^0.31.10",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
@@ -41,6 +50,8 @@
     "unrs-resolver"
   ],
   "trustedDependencies": [
+    "canvas",
+    "esbuild",
     "sharp",
     "unrs-resolver"
   ]

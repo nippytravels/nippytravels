@@ -198,7 +198,7 @@ export function Root<TFullData extends FieldValues>({
           {stepConfigs.map((config, idx) => (
             <Fragment key={config.id}>
               <div
-                className={`w-full px-4 py-2 text-center text-xs rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-neutral-200 text-neutral-800"}`}
+                className={`w-full px-4 py-2 text-center text-xs rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-white text-neutral-800"}`}
               >
                 <span className="whitespace-nowrap shrink-0 ">
                   {idx + 1}. {config.title}
@@ -206,7 +206,7 @@ export function Root<TFullData extends FieldValues>({
               </div>
               {idx !== stepConfigs.length - 1 && (
                 <div
-                  className={`h-2 hidden md:lg:xl:flex rounded-md w-full ${currentStep === idx + 1 || currentStep > 1 ? "bg-black/20" : "bg-neutral-200"}`}
+                  className={`h-2 hidden md:lg:xl:flex rounded-md w-full ${currentStep === idx + 1 || currentStep > 1 ? "bg-black/20" : "bg-white"}`}
                 />
               )}
             </Fragment>

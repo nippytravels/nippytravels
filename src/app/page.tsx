@@ -1,70 +1,88 @@
-import { Menu } from "@base-ui/react/menu";
-import {
-  AltArrowRight,
-  CalendarMinimalistic,
-  Document,
-  HamburgerMenu,
-} from "@solar-icons/react/ssr";
+import { Document, MenuDots } from "@solar-icons/react/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/images/logo.png";
 
 export default function Home() {
   return (
-    <div className="w-full h-screen flex flex-col bg-black/50">
-      <div className="w-full flex items-center justify-between md:lg:xl:px-10 px-5 py-5">
-        <Image src={logo} alt="logo" width={35} height={35} />
-        <div className="hidden md:lg:xl:flex items-center justify-center gap-7">
-          <Link href={`/?viewing=about`} className="hover:text-neutral-200">
-            About Us
+    <div className="w-full h-screen flex flex-col relative">
+      <div className="w-full fixed backdrop-blur-xl bg-transparent noise-subtle flex items-center justify-center">
+        <div className="w-full md:lg:xl:w-4/6 bg-white py-5 px-5 border-x border-x-solid border-x-neutral-200 flex items-center justify-between">
+          <Link href="/" className="font-bold text-lg">
+            <Image src={logo} width={40} height={40} alt="logo" />
           </Link>
-          <Link href={`/?viewing=contact`} className="hover:text-neutral-200">
-            Get In Touch
-          </Link>
+          <div className="flex md:lg:xl:hidden ">
+            <button type="button" className="bg-neutral-200 p-2 rounded-md">
+              <MenuDots size={16} className="rotate-90" weight="Bold" />
+            </button>
+          </div>
+          <div className="md:lg:xl:flex items-center justify-end gap-6 hidden">
+            <Link
+              href={`/?viewing=about`}
+              className="flex text-neutral-600 hover:text-neutral-950 items-center text-sm font-medium justify-center hover:underline"
+            >
+              About Us
+            </Link>
+            <Link
+              href={`/?viewing=form`}
+              className="flex text-neutral-600 hover:text-neutral-950 items-center text-sm font-medium justify-center hover:underline"
+            >
+              Book an appointment
+            </Link>
+            <Link
+              href={`/?viewing=form`}
+              className="flex items-center bg-black gap-2 text-white text-sm font-medium justify-center px-4 py-2 rounded-md corner-squircle"
+            >
+              <Document weight="Bold" size={14} />
+              <span>Fill My Form</span>
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center justify-center md:lg:xl:hidden">
-          <Menu.Root>
-            <Menu.Trigger className="flex items-center justify-center bg-white rounded-sm text-black p-1">
-              <HamburgerMenu size={20} weight="Linear" />
-            </Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner
-                className="outline-hidden"
-                sideOffset={8}
-                align="start"
-              >
-                <Menu.Popup className="relative origin-(--transform-origin) border border-neutral-200 rounded-sm p-2 bg-white py-1 text-neutral-950 outline-hidden transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
-                  <Menu.Item render={<Link href={`/?viewing=form`}/>} className="menu-item">Add to Library</Menu.Item>
-                </Menu.Popup>{" "}
-              </Menu.Positioner>{" "}
-            </Menu.Portal>
-          </Menu.Root>
-        </div>
-        <Link
-          href={`/?viewing=form`}
-          className="px-4 py-2 bg-white text-neutral-950 rounded-full corner-squircle text-sm hidden md:lg:xl:flex items-center justify-between gap-2"
-        >
-          <span className="text-white bg-black rounded-full p-1">
-            <AltArrowRight weight="Linear" size={14} />
-          </span>
-          <span>Fill My Form</span>
-        </Link>
       </div>
-      <div className="hidden fixed md:lg:xl:flex items-center justify-center bottom-10 w-3/6 left-[25%] p-10 gap-6">
-        <button
-          type="button"
-          className="px-6 py-2 bg-transparent backdrop-blur-3xl flex items-center justify-center gap-2 border border-solid border-white rounded-full text-sm"
-        >
-          <CalendarMinimalistic weight="Bold" size={16} />
-          <span>Book an Appointment</span>
-        </button>
-        <Link
-          href={`/?viewing=form`}
-          className="px-6 py-2 bg-black text-white flex items-center justify-center gap-2 border border-solid border-neutral-800 rounded-full text-sm"
-        >
-          <Document weight="Bold" size={16} />
-          <span>Fill my Form</span>
-        </Link>
+      <div
+        id="workspace"
+        className="w-full h-screen flex flex-col gap-7 items-center justify-center"
+      >
+        <Image
+          src={logo}
+          width={90}
+          height={90}
+          alt="logo"
+          className="rotate-10"
+        />
+        <div className="flex flex-col items-center justify-center gap-5">
+          <h1 className="text-5xl font-extrabold">Nippy Travels</h1>
+          <span className="text-center w-5/6 md:lg:xl:w-2/6 text-sm text-neutral-600">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia
+            quis perspiciatis numquam, beatae ducimus dolorem molestiae alias
+            labore deleniti laborum cupiditate possimus dolorum vero culpa
+            tempora vitae nemo reiciendis. Veniam!
+          </span>
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href={`/`}
+              className="flex items-center bg-white gap-2 text-black shadow text-sm font-medium justify-center px-4 py-2 rounded-md corner-squircle"
+            >
+              <Document weight="Bold" size={14} />
+              <span>Book an Appointment</span>
+            </Link>
+            <Link
+              href={`/?viewing=form`}
+              className="flex items-center bg-black gap-2 text-white text-sm font-medium justify-center px-4 py-2 rounded-md corner-squircle"
+            >
+              <Document weight="Bold" size={14} />
+              <span>Fill My Form</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="absolute z-1 py-2 bottom-0 left-0 w-full flex items-center justify-center">
+        <span className="text-xs text-neutral-700">
+          Designed and Developed by{" "}
+          <span className="text-fuchsia-500 underline cursor-pointer">
+            @DisgruntledDevs
+          </span>
+        </span>
       </div>
     </div>
   );

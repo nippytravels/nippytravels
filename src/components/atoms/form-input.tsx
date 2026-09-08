@@ -11,8 +11,9 @@ import {
   EyeClosed,
   TrashBinMinimalistic,
 } from "@solar-icons/react/ssr";
+import { format } from "date-fns";
 import { useState } from "react";
-import { DayPicker,getDefaultClassNames } from "react-day-picker";
+import { getDefaultClassNames } from "react-day-picker";
 import {
   type Control,
   Controller,
@@ -23,9 +24,9 @@ import {
   useController,
   useFieldArray,
 } from "react-hook-form";
+import DateWheelPicker from "./date-picker";
 import { CaretDownIcon, CheckIcon } from "./icons";
 import Switch from "./switch";
-import { format } from "date-fns";
 
 type SelectOption = {
   name: string;
@@ -178,9 +179,6 @@ function DateInput<T extends FieldValues>({
 }: InputProps<T> & {
   dateFormat: string;
 }) {
-
-    const defaultClassNames = getDefaultClassNames();
-
   return (
     <Popover.Root>
       <Popover.Trigger
@@ -198,8 +196,8 @@ function DateInput<T extends FieldValues>({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8} align="start">
-          <Popover.Popup className="relative flex h-(--popup-height,auto) w-(--popup-width,auto) max-w-125 flex-col gap-1 origin-(--transform-origin) bg-neutral-50 rounded-sm border border-solid border-neutral-200 outline-none shadow-[0.25rem_0.25rem_0] p-3 shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
-            <DayPicker
+          <Popover.Popup className="relative flex h-(--popup-height,auto) w-(--popup-width,auto) max-w-125 flex-col gap-1 origin-(--transform-origin) bg-transparent outline-none shadow-[0.25rem_0.25rem_0] p-3 shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+            {/* <DayPicker
               mode="single"
               selected={field.value as Date | undefined}
               onSelect={(date) => {
@@ -210,11 +208,14 @@ function DateInput<T extends FieldValues>({
               classNames={{
                 chevron: `${defaultClassNames.chevron} fill-black`,
                 today: `border-neutral-200 bg-black/5 text-neutral-950 rounded-full`,
-                selected:"bg-black text-white rounded-full",
-                day:`text-neutral-950 font-regular`,
-                month:`text-black font-medium`,
-                button_next:"fill-black"
+                selected: "bg-black text-white rounded-full",
+                day: `text-neutral-950 font-regular`,
+                month: `text-black font-medium`,
+                button_next: "fill-black",
               }}
+            /> */}
+            <DateWheelPicker
+              onChange={(value) => field.onChange(value.toString())}
             />
           </Popover.Popup>
         </Popover.Positioner>
