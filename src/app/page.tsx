@@ -2,6 +2,7 @@ import { Document, MenuDots } from "@solar-icons/react/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/images/logo.png";
+import { Squiggle } from "@/components";
 
 export default function Home() {
   return (
@@ -52,11 +53,8 @@ export default function Home() {
         />
         <div className="flex flex-col items-center justify-center gap-5">
           <h1 className="text-5xl font-extrabold">Nippy Travels</h1>
-          <span className="text-center w-5/6 md:lg:xl:w-2/6 text-sm text-neutral-600">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia
-            quis perspiciatis numquam, beatae ducimus dolorem molestiae alias
-            labore deleniti laborum cupiditate possimus dolorum vero culpa
-            tempora vitae nemo reiciendis. Veniam!
+          <span className="text-center text-xl font-bold text-neutral-800">
+            Discover More, Travel Better.
           </span>
           <div className="flex items-center justify-center gap-4">
             <Link
