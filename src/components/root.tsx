@@ -53,7 +53,7 @@ export default function Root(props: RootProps) {
         <Dialog.Trigger ref={dialogTriggerRef} />
         <Dialog.Portal className="z-30">
           <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-15 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
-          <Dialog.Popup className="fixed bg-neutral-200 backdrop-blur-lg noise-subtle top-1/2 left-1/2 -mt-8 flex flex-col w-[90%] max-h-125 md:lg:xl:w-4/6 overflow-hidden md:lg:xl:max-w-[calc(100vw-3rem)] md:lg:xl:max-h-[calc(90vh-3rem)] -translate-x-1/2 rounded-lg corner-squircle -translate-y-1/2 text-neutral-950 border border-neutral-300 shadow shadow-black/20 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+          <Dialog.Popup className="fixed bg-neutral-200 backdrop-blur-lg noise-subtle top-1/2 left-1/2 -mt-8 flex flex-col w-[90%] max-h-125 md:lg:xl:w-5/6 md:lg:xl:h-5/6 overflow-hidden md:lg:xl:max-w-[calc(100vw-3rem)] md:lg:xl:max-h-[calc(90vh-3rem)] -translate-x-1/2 rounded-lg corner-squircle -translate-y-1/2 text-neutral-950 border border-neutral-300 shadow shadow-black/20 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
             <div className="overflow-y-auto flex-1 py-6 px-6 pt-12 pb-8 md:px-10">
               <Switch value={activeView}>
                 {{
@@ -131,6 +131,13 @@ const FormView = React.memo(() => {
           schema={FormSchema.pick({ spouse: true, children: true })}
         >
           <SpouseInformation />
+        </MultiStep.Step>
+        <MultiStep.Step
+          id="other"
+          title="Other Information"
+          schema={FormSchema.pick({ employerInfo: true, visaInfo: true })}
+        >
+          <Misc />
         </MultiStep.Step>
       </MultiStep.Root>
     </div>
@@ -270,6 +277,46 @@ function SpouseInformation() {
           { name: "dateOfBirth", label: "Date Of Birth" },
         ]}
       />
+    </div>
+  );
+}
+
+function Misc() {
+  const { control } = MultiStep.useMultiStepForm<FormData>();
+
+  return (
+    <div className="w-full h-full gap-3">
+      <div className="flex flex-col md:lg:xl:flex-row items-center justify-between gap-3 mb-2">
+        <FormInput
+          control={control}
+          name="employerInfo.employerName"
+          label="Employer Name"
+        />
+        <FormInput
+          control={control}
+          name="employerInfo.employerEmailAddress"
+          label="Employer Email Address"
+        />
+      </div>
+      <FormInput
+        control={control}
+        name="employerInfo.employerAddress"
+        label="Employer Address"
+      />
+      <div className="flex flex-col md:lg:xl:flex-row items-center justify-between gap-3 mb-2 my-5">
+        <FormInput
+          control={control}
+          name="visaInfo.previouslyIssued"
+          label="Previously Issue"
+          type="boolean"
+        />
+        <FormInput
+          control={control}
+          name="visaInfo.previouslyRefused"
+          label="Previously Refused"
+          type="boolean"
+        />
+      </div>
     </div>
   );
 }

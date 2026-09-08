@@ -13,7 +13,6 @@ import {
 } from "@solar-icons/react/ssr";
 import { format } from "date-fns";
 import { useState } from "react";
-import { getDefaultClassNames } from "react-day-picker";
 import {
   type Control,
   Controller,
@@ -27,6 +26,7 @@ import {
 import DateWheelPicker from "./date-picker";
 import { CaretDownIcon, CheckIcon } from "./icons";
 import Switch from "./switch";
+import { Checkbox } from "@base-ui/react/checkbox";
 
 type SelectOption = {
   name: string;
@@ -55,7 +55,8 @@ type FormInputProps<T extends FieldValues> = {
     | "select"
     | "date"
     | "number"
-    | "array";
+    | "array"
+    | "boolean";
   placeholder?: string;
   disabled?: boolean;
   options?: SelectOption[];
@@ -156,6 +157,13 @@ export default function FormInput<T extends FieldValues>({
                   placeholder={placeholder}
                 />
               ),
+              boolean: () => (
+                <BooleanInput
+                  field={field}
+                  disabled={disabled}
+                  placeholder={placeholder}
+                />
+              ),
             }}
           </Switch>
         </div>
@@ -170,6 +178,25 @@ type InputProps<T extends FieldValues> = Omit<
 > & {
   field: ControllerRenderProps<T, Path<T>>;
 };
+
+function BooleanInput<T extends FieldValues>({
+  field,
+  disabled,
+}: InputProps<T>) {
+  return (
+    <Checkbox.Root
+      name={field.name}
+      disabled={disabled}
+      onCheckedChange={(v) => field.onChange(v)}
+      defaultChecked
+      className="flex size-4 shrink-0 items-center justify-center border rounded-none p-0 border-neutral-300 bg-neutral-300 text-neutral-500 data-checked:bg-neutral-300 data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950"
+    >
+      <Checkbox.Indicator className="flex data-unchecked:hidden">
+        <CheckIcon />
+      </Checkbox.Indicator>{" "}
+    </Checkbox.Root>
+  );
+}
 
 function DateInput<T extends FieldValues>({
   field,

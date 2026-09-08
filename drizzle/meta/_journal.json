@@ -15,6 +15,13 @@
       "when": 1788887476678,
       "tag": "0001_greedy_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788890531439,
+      "tag": "0002_tired_wild_pack",
+      "breakpoints": true
     }
   ]
 }

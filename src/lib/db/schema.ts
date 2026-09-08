@@ -1,5 +1,5 @@
 // db/schema/auth.ts
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -61,3 +61,36 @@ export const verification = sqliteTable("verification", {
   createdAt: integer("created_at", { mode: "timestamp" }),
   updatedAt: integer("updated_at", { mode: "timestamp" }),
 });
+
+export const form = sqliteTable(
+  "forms",
+  {
+    id: text("id").primaryKey(),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    middleName: text("middle_name"),
+    dateOfBirth: text("date_of_birth"),
+    passportNumber: text("passport_number").unique(),
+    passportIssueDate: text("passport_issue_date").unique(),
+    passportExpiry: text("passport_expiry"),
+    maritalStatus: text("marital_status"),
+    phoneNumber: text("phone_number").unique(),
+    email: text("email").unique(),
+    spouseName: text("spouse_name"),
+    spouseDateOfBirth: text("spouse_date_of_birth"),
+    motherFullName: text("mother_full_name"),
+    fatherFullName: text("father_full_name"),
+    fatherDateOfBirth: text("father_date_of_birth"),
+    motherDateOfBirth: text("mother_date_of_birth"),
+    employerName: text("employer_name"),
+    employerAddress: text("employer_address"),
+    employerEmailAddress: text("employer_email_address"),
+    previouslyRefused: integer("previously_refused", {
+      mode: "boolean",
+    }).default(false),
+    previouslyIssued: integer("previously_issued", { mode: "boolean" }).default(
+      false,
+    ),
+  },
+  (tbl) => [index("email_index").on(tbl.email)],
+);
