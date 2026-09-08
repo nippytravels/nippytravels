@@ -2,7 +2,6 @@ import { Document, MenuDots } from "@solar-icons/react/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "@/assets/images/logo.png";
-import { Squiggle } from "@/components";
 
 export default function Home() {
   return (
