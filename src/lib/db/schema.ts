@@ -1,3 +1,4 @@
+// db/schema/auth.ts
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
@@ -8,7 +9,10 @@ export const user = sqliteTable("user", {
     .notNull()
     .default(false),
   image: text("image"),
-  role: text("role").notNull().default("user"),
+  role: text("role").notNull().default("user"), // "user" | "admin"
+  banned: integer("banned", { mode: "boolean" }).notNull().default(false),
+  banReason: text("ban_reason"),
+  banExpires: integer("ban_expires", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });

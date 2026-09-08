@@ -1,16 +1,27 @@
 import { z } from "zod";
 
+const phoneNumber = z
+  .string()
+  .regex(
+    /^(?:0[789]\d{9}|\+234[789]\d{9})$/,
+    "Enter a valid Nigerian phone number",
+  );
+
+const passportNumber = z
+  .string()
+  .regex(/^[A-Z]\d{8}$/, "Enter a valid Nigerian passport number");
+
 export const FormSchema = z.object({
   personalInfo: z.object({
     firstName: z.string(),
     middleName: z.string(),
     lastName: z.string(),
     dateOfBirth: z.string(),
-    passportNumber: z.string(),
+    passportNumber,
     passportIssueDate: z.string(),
     passportExpiry: z.string(),
     maritalStatus: z.enum(["single", "married", "divorced"]),
-    phoneNumber: z.string(),
+    phoneNumber,
     email: z.email(),
   }),
   spouse: z

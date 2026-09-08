@@ -8,6 +8,13 @@
       "when": 1788887113026,
       "tag": "0000_tranquil_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788887476678,
+      "tag": "0001_greedy_naoko",
+      "breakpoints": true
     }
   ]
 }
