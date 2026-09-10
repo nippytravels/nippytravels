@@ -9,6 +9,7 @@ import { createSafeActionClient } from "next-safe-action";
  */
 export const client = createSafeActionClient({
   handleServerError: (e) => {
+    console.error(e);
     console.error(`[Server Error] => ${e.message}`);
     return e.message;
   },
