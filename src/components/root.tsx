@@ -6,6 +6,7 @@ import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hoo
 import { CloseCircle } from "@solar-icons/react/ssr";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import { Toaster, toast } from "sonner";
 import { submitFormAction } from "@/lib/actions";
 import { type FormData, FormSchema } from "@/lib/validations";
 import { FormInput, Switch } from "./atoms";
@@ -49,11 +50,12 @@ export default function Root(props: RootProps) {
   return (
     <>
       {props.children}
+      <Toaster position="top-right" />
       <Dialog.Root>
         <Dialog.Trigger ref={dialogTriggerRef} />
         <Dialog.Portal className="z-30">
           <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-15 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
-          <Dialog.Popup className="fixed bg-neutral-200 backdrop-blur-lg noise-subtle top-1/2 left-1/2 -mt-8 flex flex-col w-[90%] max-h-125 md:lg:xl:w-5/6 md:lg:xl:h-5/6 overflow-hidden md:lg:xl:max-w-[calc(100vw-3rem)] md:lg:xl:max-h-[calc(90vh-3rem)] -translate-x-1/2 rounded-lg corner-squircle -translate-y-1/2 text-neutral-950 border border-neutral-300 shadow shadow-black/20 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+          <Dialog.Popup className="fixed bg-neutral-200 backdrop-blur-lg noise-subtle top-1/2 left-1/2 -mt-8 flex flex-col w-[90%] max-h-125 md:lg:xl:w-5/6 overflow-hidden md:lg:xl:max-w-[calc(100vw-3rem)] md:lg:xl:max-h-[calc(90vh-3rem)] -translate-x-1/2 rounded-lg corner-squircle -translate-y-1/2 text-neutral-950 border border-neutral-300 shadow shadow-black/20 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
             <div className="overflow-y-auto flex-1 py-6 px-6 pt-12 pb-8 md:px-10">
               <Switch value={activeView}>
                 {{
@@ -100,12 +102,18 @@ const FormView = React.memo(() => {
       formProps: {
         mode: "onChange",
       },
+      actionProps: {
+        onSuccess: ({ data }) =>
+          toast.success(
+            `Thank you, ${data.user.firstName} ${data.user.lastName}, your information has been saved`,
+          ),
+      },
     },
   );
 
   return (
     <div className="flex flex-col items-start justify-start gap-3">
-      <h1 className="text-2xl font-bold">Preliminary Form</h1>
+      <h1 className="text-2xl font-black uppercase">Preliminary Form</h1>
       <MultiStep.Root
         className="w-full h-full"
         onSubmit={action.execute}
@@ -148,7 +156,7 @@ function PersonalInformation() {
   const { control } = MultiStep.useMultiStepForm<FormData>();
 
   return (
-    <div className="w-full h-full gap-3">
+    <div className="w-full h-full gap-6">
       <div className="flex flex-col md:lg:xl:flex-row items-center justify-between gap-3 mb-2">
         <FormInput
           control={control}

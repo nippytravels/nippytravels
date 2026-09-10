@@ -4,10 +4,11 @@
 
 @theme inline {
   --font-sans: var(--font-sn);
+  --font-display:var(--font-supreme);
 }
 
 body {
-  @apply font-sans text-neutral-950 bg-neutral-200 bg-cover select-none;
+  @apply font-display text-neutral-950 bg-neutral-50 bg-cover select-none;
 }
 
 button {
@@ -23,11 +24,11 @@ button {
 }
 
 .formLabel {
-  @apply text-xs text-neutral-800 font-medium;
+  @apply text-xs text-neutral-600 font-bold uppercase;
 }
 
 .formError {
-  @apply text-xs text-red-700;
+  @apply text-[10px] text-red-600 underline text-end;
 }
 @utility menu-item {
   @apply flex rounded-md items-center justify-start gap-2 cursor-pointer py-2 pr-8 pl-4 text-xs leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-neutral-950 data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-black/5 data-highlighted:before:content-[''];

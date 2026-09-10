@@ -10,6 +10,11 @@ const SN = Local({
   variable: "--font-sn",
 });
 
+const supreme = Local({
+  src: "../assets/fonts/supreme.ttf",
+  variable: "--font-supreme",
+});
+
 export const metadata: Metadata = {
   title: "Nippy Travels",
   description: "Your express travel management agency",
@@ -17,7 +22,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${SN.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${SN.variable} ${supreme.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
         <Suspense fallback={null}>
           <Root>{children}</Root>

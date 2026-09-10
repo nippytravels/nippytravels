@@ -15,21 +15,26 @@ const routePath = `
   C 466 108, 480 104, 492 88
 `;
 
-export default function Squiggle() {
+type Props = {
+  className?: string;
+};
+
+export default function Squiggle({ className }: Props) {
   return (
-    <svg
+    <motion.svg
       viewBox="0 0 500 160"
       width="500"
       height="160"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       {/* Existing handwritten route */}
       <motion.path
         id="travel-route"
         d={routePath}
         stroke="currentColor"
-        strokeWidth="10"
+        strokeWidth="8"
         strokeLinecap="round"
         strokeLinejoin="round"
         initial={{ pathLength: 0 }}
@@ -65,6 +70,6 @@ export default function Squiggle() {
           offsetPath: `path("${routePath}")`,
         }}
       />
-    </svg>
+    </motion.svg>
   );
 }

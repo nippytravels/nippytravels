@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@base-ui/react/checkbox";
 import { Combobox } from "@base-ui/react/combobox";
 import { Input } from "@base-ui/react/input";
 import { Popover } from "@base-ui/react/popover";
@@ -26,7 +27,6 @@ import {
 import DateWheelPicker from "./date-picker";
 import { CaretDownIcon, CheckIcon } from "./icons";
 import Switch from "./switch";
-import { Checkbox } from "@base-ui/react/checkbox";
 
 type SelectOption = {
   name: string;
@@ -100,7 +100,7 @@ export default function FormInput<T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => (
         <div className="flex flex-col w-full gap-1">
-          <div className="w-full flex items-center justify-between">
+          <div className="w-full flex items-center justify-between gap-1">
             <label htmlFor={name} className="formLabel">
               {label}
             </label>
@@ -381,7 +381,7 @@ function SelectInput<T extends FieldValues>({
       onValueChange={field.onChange}
       multiple={multiple}
     >
-      <Combobox.InputGroup className="relative h-8 w-full border border-solid border-neutral-200 bg-neutral-100 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white dark:border-white [&>input]:pr-10 has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+2rem*2)]">
+      <Combobox.InputGroup className="relative h-8 w-full border border-solid border-neutral-200 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white dark:border-white [&>input]:pr-10 has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+2rem*2)]">
         <Combobox.Input
           placeholder={`eg ${options[0].value}`}
           id={field.name}
@@ -425,7 +425,7 @@ function SelectInput<T extends FieldValues>({
                   <Combobox.ItemIndicator className="col-start-1">
                     <CheckIcon height={10} width={10} />
                   </Combobox.ItemIndicator>
-                  <span className="col-start-2">{option.name}</span>
+                  <span className="col-start-2 font-medium">{option.name}</span>
                 </Combobox.Item>
               ))}
             </Combobox.List>

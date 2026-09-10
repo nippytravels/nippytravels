@@ -156,14 +156,14 @@ function WheelColumn({
                 el.scrollTo({ top: index * itemHeight, behavior: "smooth" });
                 onChange(index);
               }}
-              className="flex items-center justify-center cursor-pointer font-medium tabular-nums"
+              className="flex items-center uppercase justify-center cursor-pointer font-medium tabular-nums"
               style={{
                 height: itemHeight,
                 scrollSnapAlign: "center",
                 transform: `perspective(600px) translateZ(${translateZ}px) rotateX(${rotateX}deg) scale(${scale})`,
                 opacity,
                 color: isSelected ? "#000000" : "#525252",
-                fontSize: isSelected ? 17 : 15,
+                fontSize: isSelected ? 16 : 13,
                 transition: "color 120ms ease",
               }}
             >

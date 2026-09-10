@@ -198,7 +198,7 @@ export function Root<TFullData extends FieldValues>({
           {stepConfigs.map((config, idx) => (
             <Fragment key={config.id}>
               <div
-                className={`w-full px-4 py-2 text-center text-xs rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-white text-neutral-800"}`}
+                className={`w-full px-5 py-2 uppercase font-medium text-center text-xs rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-white text-neutral-800"}`}
               >
                 <span className="whitespace-nowrap shrink-0 ">
                   {idx + 1}. {config.title}
