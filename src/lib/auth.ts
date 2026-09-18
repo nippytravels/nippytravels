@@ -6,7 +6,7 @@ import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "sqlite",
+    provider: "pg",
     schema,
   }),
   emailAndPassword: {
@@ -18,7 +18,10 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
   ],
-  trustedOrigins: ["https://website.com", "https://admin.website.com"],
+  trustedOrigins: [
+    "https://nippytravels.com",
+    "https://admin.nippytravels.com",
+  ],
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
