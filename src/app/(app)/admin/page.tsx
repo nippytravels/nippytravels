@@ -6,9 +6,10 @@ import { redirect } from "next/navigation";
 import { Avatar } from "@/components/atoms";
 import LogoutButton from "@/components/logout-button";
 import { auth } from "@/lib/auth";
+import FormsView from "./mixins/forms-view";
 
 const tabTitle =
-  "text-sm font-medium uppercase border-x border-x-solid border-x-neutral-200 px-5 py-2.5 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:custom-inset text-neutral-700";
+  "text-sm font-medium uppercase border-r border-r-solid border-r-neutral-200 px-5 py-2.5 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:custom-inset text-neutral-700";
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -35,7 +36,7 @@ export default async function Page() {
               Appointments
             </Tabs.Tab>
           </div>
-          <div className="flex items-center justify-end w-full px-2">
+          <div className="flex items-center justify-end w-full">
             <Menu.Root>
               <Menu.Trigger>
                 <Avatar
@@ -57,6 +58,10 @@ export default async function Page() {
             </Menu.Root>
           </div>
         </Tabs.List>
+        <Tabs.Panel value="forms">
+          <FormsView />
+        </Tabs.Panel>
+        <Tabs.Panel value="appointments"></Tabs.Panel>
       </Tabs.Root>
     </div>
   );

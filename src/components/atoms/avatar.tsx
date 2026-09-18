@@ -10,7 +10,7 @@ type Props = {
 export default function Avatar({ imageUrl, fallback, className, alt }: Props) {
   return (
     <BaseAvatar.Root
-      className={`inline-flex size-9 ${className} cursor-pointer items-center justify-center overflow-hidden rounded-sm bg-neutral-200 align-middle text-sm leading-none font-normal text-neutral-950 select-none dark:bg-neutral-800 dark:text-white`}
+      className={`inline-flex size-9 ${className} cursor-pointer items-center justify-center overflow-hidden rounded-md bg-neutral-200 align-middle text-sm leading-none font-normal text-neutral-950 select-none dark:bg-neutral-800 dark:text-white`}
     >
       <BaseAvatar.Image
         src={imageUrl}
