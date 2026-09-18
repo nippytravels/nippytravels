@@ -8,7 +8,7 @@ import LogoutButton from "@/components/logout-button";
 import { auth } from "@/lib/auth";
 
 const tabTitle =
-  "text-sm font-medium uppercase border-x border-x-solid border-x-neutral-200 px-5 py-2.5 data-active:bg-blue-50 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:custom-inset text-neutral-700";
+  "text-sm font-medium uppercase border-x border-x-solid border-x-neutral-200 px-5 py-2.5 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:custom-inset text-neutral-700";
 
 export default async function Page() {
   const session = await auth.api.getSession({
