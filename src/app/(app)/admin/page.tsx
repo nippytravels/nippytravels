@@ -11,7 +11,11 @@ import FormsView from "./mixins/forms-view";
 const tabTitle =
   "text-sm font-medium uppercase border-r border-r-solid border-r-neutral-200 px-5 py-2.5 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:custom-inset text-neutral-700";
 
-export default async function Page() {
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function Page({ searchParams }: Props) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -59,7 +63,7 @@ export default async function Page() {
           </div>
         </Tabs.List>
         <Tabs.Panel value="forms">
-          <FormsView />
+          <FormsView searchParams={searchParams} />
         </Tabs.Panel>
         <Tabs.Panel value="appointments"></Tabs.Panel>
       </Tabs.Root>
