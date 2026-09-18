@@ -7,6 +7,14 @@ import { client } from "./action-client";
 import { db } from "./db";
 import { FormSchema, LoginSchema } from "./validations";
 
+const isDev = process.env.NODE_ENV === "development";
+
+export const logout = client.action(async ({ ctx }) => {
+  await ctx.auth.api.signOut();
+
+  return redirect("/");
+});
+
 export const login = client
   .inputSchema(LoginSchema)
   .action(async ({ parsedInput, ctx }) => {
@@ -19,7 +27,7 @@ export const login = client
       },
     });
 
-    return redirect("/admin");
+    return redirect(isDev ? "/admin" : "https://admin.nippytravels.com/admin");
   });
 
 export const submitFormAction = client
