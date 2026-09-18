@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 import { db } from "@/lib/db/index";
 import * as schema from "@/lib/db/schema";
@@ -17,6 +18,7 @@ export const auth = betterAuth({
       defaultRole: "user",
       adminRoles: ["admin"],
     }),
+    nextCookies(),
   ],
   trustedOrigins: [
     "https://nippytravels.com",
@@ -25,7 +27,7 @@ export const auth = betterAuth({
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
-      domain: ".website.com",
+      domain: ".nippytravels.com",
     },
   },
 });

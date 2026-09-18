@@ -1,10 +1,26 @@
 "use server";
 
 import crypto from "node:crypto";
+import { redirect } from "next/navigation";
 import * as S from "@/lib/db/schema";
 import { client } from "./action-client";
 import { db } from "./db";
-import { FormSchema } from "./validations";
+import { FormSchema, LoginSchema } from "./validations";
+
+export const login = client
+  .inputSchema(LoginSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    console.log({ parsedInput });
+
+    await ctx.auth.api.signInEmail({
+      body: {
+        email: parsedInput.email,
+        password: parsedInput.password,
+      },
+    });
+
+    return redirect("/admin");
+  });
 
 export const submitFormAction = client
   .inputSchema(FormSchema)
@@ -15,7 +31,7 @@ export const submitFormAction = client
       await db
         .insert(S.form)
         .values({
-          id: crypto.randomUUID(),
+          id: crypto.randomUUID().toString(),
           // ...parsedInput.children,
           ...parsedInput.employerInfo,
           ...parsedInput.parents,

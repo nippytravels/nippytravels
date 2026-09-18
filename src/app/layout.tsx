@@ -3,7 +3,6 @@ import "./globals.css";
 import Local from "next/font/local";
 import { Suspense } from "react";
 import { Root } from "@/components/index";
-import "react-day-picker/style.css";
 
 const SN = Local({
   src: "../assets/fonts/sn.ttf",

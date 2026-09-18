@@ -2,8 +2,12 @@ import { type NextRequest, NextResponse } from "next/server";
 
 const ROOT_DOMAIN = "nippytravels.com";
 const ADMIN_SUBDOMAIN = "admin";
+const isDev = process.env.NODE_ENV === "development";
 
 export function proxy(req: NextRequest) {
+  if (isDev) {
+    return NextResponse.next();
+  }
   const host = req.headers.get("host") ?? "";
   const hostname = host.split(":")[0];
 

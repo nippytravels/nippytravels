@@ -224,23 +224,6 @@ function DateInput<T extends FieldValues>({
       <Popover.Portal>
         <Popover.Positioner sideOffset={8} align="start">
           <Popover.Popup className="relative flex h-(--popup-height,auto) w-(--popup-width,auto) max-w-125 flex-col gap-1 origin-(--transform-origin) bg-transparent outline-none shadow-[0.25rem_0.25rem_0] p-3 shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
-            {/* <DayPicker
-              mode="single"
-              selected={field.value as Date | undefined}
-              onSelect={(date) => {
-                field.onChange(date?.toString());
-              }}
-              disabled={disabled}
-              autoFocus
-              classNames={{
-                chevron: `${defaultClassNames.chevron} fill-black`,
-                today: `border-neutral-200 bg-black/5 text-neutral-950 rounded-full`,
-                selected: "bg-black text-white rounded-full",
-                day: `text-neutral-950 font-regular`,
-                month: `text-black font-medium`,
-                button_next: "fill-black",
-              }}
-            /> */}
             <DateWheelPicker
               onChange={(value) => field.onChange(value.toString())}
             />
@@ -266,6 +249,7 @@ function PasswordInput<T extends FieldValues>({
             <input
               id={field.name}
               name={field.name}
+              className="w-full outline-none"
               type={isVisible ? "text" : "password"}
               ref={field.ref}
               value={field.value ?? ""}
