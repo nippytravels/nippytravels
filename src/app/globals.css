@@ -16,7 +16,7 @@ button {
 }
 
 .input {
-  @apply bg-neutral-100 rounded-md corner-squircle text-neutral-950 outline-none px-2 py-2 text-sm w-full border border-solid border-neutral-200 placeholder:text-sm;
+  @apply bg-neutral-100 text-neutral-950 outline-none px-2 py-2 text-sm w-full border border-solid border-neutral-200 placeholder:text-sm;
 }
 
 @utility custom-inset {

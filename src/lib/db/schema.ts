@@ -89,6 +89,8 @@ export const form = pgTable(
     employerEmailAddress: text("employer_email_address"),
     previouslyRefused: boolean("previously_refused").default(false),
     previouslyIssued: boolean("previously_issued").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
   },
   (tbl) => [index("email_index").on(tbl.email)],
 );

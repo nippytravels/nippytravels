@@ -1,7 +1,9 @@
 "use server";
 
 import crypto from "node:crypto";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import * as S from "@/lib/db/schema";
 import { client } from "./action-client";
 import { db } from "./db";
@@ -9,10 +11,20 @@ import { FormSchema, LoginSchema } from "./validations";
 
 const isDev = process.env.NODE_ENV === "development";
 
-export const logout = client.action(async ({ ctx }) => {
-  await ctx.auth.api.signOut();
+export const getForms = cache(
+  async (page: number) =>
+    await db.query.form.findMany({
+      offset: (page - 1) * 20,
+      limit: 20,
+    }),
+);
 
-  return redirect("/");
+export const logout = client.action(async ({ ctx }) => {
+  await ctx.auth.api.signOut({
+    headers: await headers(),
+  });
+
+  return redirect("/login");
 });
 
 export const login = client

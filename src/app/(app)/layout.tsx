@@ -21,8 +21,12 @@ export default async function Layout({
 
   const session = await auth.api.getSession({ headers: headersList });
 
-  if (!session && !isDev) {
-    redirect(`https://${ADMIN_SUBDOMAIN}.${ROOT_DOMAIN}/login`);
+  if (!session) {
+    redirect(
+      isDev
+        ? "http://localhost:3000/login"
+        : `https://${ADMIN_SUBDOMAIN}.${ROOT_DOMAIN}/login`,
+    );
   }
 
   if (session?.user.role !== "admin" && !isDev) {

@@ -20,8 +20,6 @@ export default async function Page({ searchParams }: Props) {
     headers: await headers(),
   });
 
-  console.log({ session });
-
   if (!session) {
     return redirect("/login");
   }
@@ -29,9 +27,8 @@ export default async function Page({ searchParams }: Props) {
   const { user } = session;
 
   return (
-    <div className="w-full h-screen bg-neutral-200 p-1">
-      <Tabs.Root className="w-full h-full rounded-md border border-solid border-neutral-300 bg-white">
-        <Tabs.List className="w-full flex items-center justify-between border-b border-b-solid border-b-neutral-200">
+      <Tabs.Root className="w-full h-screen bg-neutral-50">
+        <Tabs.List className="w-full flex items-center justify-between border-b border-b-solid border-b-neutral-200 fixed bg-white">
           <div className="flex items-center justify-end">
             <Tabs.Tab className={tabTitle} value="forms">
               Forms
@@ -62,11 +59,11 @@ export default async function Page({ searchParams }: Props) {
             </Menu.Root>
           </div>
         </Tabs.List>
-        <Tabs.Panel value="forms">
+        <Tabs.Panel value="forms" className="pt-8">
           <FormsView searchParams={searchParams} />
         </Tabs.Panel>
         <Tabs.Panel value="appointments"></Tabs.Panel>
       </Tabs.Root>
-    </div>
+  
   );
 }
