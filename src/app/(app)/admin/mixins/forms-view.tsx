@@ -1,5 +1,5 @@
 import { Collapsible } from "@base-ui/react/collapsible";
-import { AltArrowDown } from "@solar-icons/react/ssr";
+import { AltArrowDown, TrashBinMinimalistic } from "@solar-icons/react/ssr";
 import moment from "moment";
 import React from "react";
 import { db } from "@/lib/db";
@@ -53,9 +53,14 @@ const FormItem = React.memo(
               </span>
             )}
           </div>
-          <Collapsible.Trigger className="border border-solid border-neutral-200 flex items-center justify-center p-1.25">
-            <AltArrowDown size={12} weight="Linear" />
+          <div className="flex items-center justify-end gap-2">
+            <button type="button" className="p-1.25 border border-solid border-red-200 text-red-500 bg-red-50">
+              <TrashBinMinimalistic size={14} weight="Bold"/>
+            </button>
+            <Collapsible.Trigger className="border border-solid border-neutral-200 flex items-center bg-neutral-50 justify-center p-1.25">
+            <AltArrowDown size={14} weight="Linear" />
           </Collapsible.Trigger>
+          </div>
         </div>
         <Collapsible.Panel className="px-5 py-3 border-t border-t-solid border-t-neutral-200 flex flex-col justify-end overflow-hidden transition-[height] duration-50 ease-[ease-out] [&[hidden]:not([hidden='until-found'])]:hidden data-ending-style:h-0 data-starting-style:h-0">
           <div className="flex flex-col items-start justify-center gap-3">
