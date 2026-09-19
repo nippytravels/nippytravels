@@ -66,13 +66,13 @@ const FormItem = React.memo(
               <span className="input">{form.lastName}</span>
             </div>
             <div className="w-full flex items-center justify-start gap-3">
-              <span className="input">{form.dateOfBirth}</span>
+              <span className="input">{new Date(form.dateOfBirth!).toLocaleString()}</span>
               <span className="input">{form.passportNumber}</span>
-              <span className="input">{form.passportIssueDate}</span>
+              <span className="input">{new Date(form.passportIssueDate!).toLocaleString()}</span>
             </div>
             <div className="w-full flex items-center justify-start gap-3">
-              <span className="input">{form.passportExpiry}</span>
-              <span className="input">{form.maritalStatus}</span>
+              <span className="input">{new Date(form.passportExpiry!).toLocaleString()}</span>
+              <span className="input uppercase">{form.maritalStatus}</span>
               <span className="input">{form.phoneNumber}</span>
             </div>
             <div className="w-full flex items-center justify-start gap-3">
