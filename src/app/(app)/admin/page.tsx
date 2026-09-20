@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth";
 import FormsView from "./mixins/forms-view";
 
 const tabTitle =
-  "text-sm font-medium uppercase border-r border-r-solid border-r-neutral-200 px-5 py-2.5 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:custom-inset text-neutral-700";
+  "text-xs font-medium uppercase rounded-md corner-squircle border-r border-r-solid border-r-neutral-200 px-5 py-2 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:bg-blue-50 text-neutral-700";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -27,14 +27,11 @@ export default async function Page({ searchParams }: Props) {
   const { user } = session;
 
   return (
-      <Tabs.Root className="w-full h-screen bg-neutral-50">
-        <Tabs.List className="w-full flex items-center justify-between border-b border-b-solid border-b-neutral-200 fixed bg-white">
+      <Tabs.Root className="w-full h-full overflow-hidden overflow-y-scroll">
+        <Tabs.List className="w-full flex px-2 py-1 items-center justify-between border-b border-b-solid border-b-neutral-200">
           <div className="flex items-center justify-end">
             <Tabs.Tab className={tabTitle} value="forms">
               Forms
-            </Tabs.Tab>
-            <Tabs.Tab className={tabTitle} value="appointments">
-              Appointments
             </Tabs.Tab>
           </div>
           <div className="flex items-center justify-end w-full">
@@ -59,10 +56,9 @@ export default async function Page({ searchParams }: Props) {
             </Menu.Root>
           </div>
         </Tabs.List>
-        <Tabs.Panel value="forms" className="pt-8">
+        <Tabs.Panel value="forms" className="w-full h-[90vh]">
           <FormsView searchParams={searchParams} />
         </Tabs.Panel>
-        <Tabs.Panel value="appointments"></Tabs.Panel>
       </Tabs.Root>
   
   );

@@ -22,9 +22,9 @@ export default function Page() {
   );
 
   return (
-    <div className="flex w-full h-screen items-center justify-center bg-neutral-200">
+    <div className="flex w-full h-screen items-center justify-center">
       <form
-        className="bg-white w-2/6 rounded-lg border border-solid shadow-lg border-neutral-300 p-5 flex flex-col items-center justify-center gap-5"
+        className="bg-white w-2/6 rounded-xl border border-solid shadow-lg corner-squircle border-neutral-300 p-4 flex flex-col items-center justify-center gap-5"
         onSubmit={handleSubmitWithAction}
       >
         <h1 className="my-3 font-extrabold text-xl text-center text-blue-400">

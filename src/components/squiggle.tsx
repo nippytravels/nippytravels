@@ -45,10 +45,8 @@ export default function Squiggle({ className }: Props) {
         }}
       />
 
-      {/* Moving dot */}
-      <motion.circle
-        r="6"
-        fill="currentColor"
+      {/* Airplane riding the tip of the route */}
+      <motion.g
         initial={{
           offsetDistance: "0%",
           opacity: 0,
@@ -68,8 +66,26 @@ export default function Squiggle({ className }: Props) {
         }}
         style={{
           offsetPath: `path("${routePath}")`,
+          // Auto-rotates the group so its local +x axis
+          // stays tangent to the path — this is what makes
+          // it "bank" into turns like a plane in flight.
+          offsetRotate: "auto",
         }}
-      />
+      >
+        {/* Plane shape drawn pointing in +x direction (nose right),
+            since offset-rotate: auto aligns +x with the path tangent.
+            Centered on the anchor point via the translate offset. */}
+        <path
+          d="
+            M 12 0
+            L -6 -5
+            L -2 0
+            L -6 5
+            Z
+          "
+          fill="currentColor"
+        />
+      </motion.g>
     </motion.svg>
   );
 }
