@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth";
 import FormsView from "./mixins/forms-view";
 
 const tabTitle =
-  "text-xs font-medium uppercase rounded-md corner-squircle border-r border-r-solid border-r-neutral-200 px-5 py-2 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:bg-blue-50 text-neutral-700";
+  "text-xs font-medium uppercase rounded-md corner-squircle px-5 py-2 flex items-center justify-center gap-3 data-active:text-blue-600 data-active:bg-blue-50 text-neutral-700";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
