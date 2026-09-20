@@ -4,9 +4,9 @@ import Local from "next/font/local";
 import { Suspense } from "react";
 import { Root } from "@/components/index";
 
-const SN = Local({
-  src: "../assets/fonts/sn.ttf",
-  variable: "--font-sn",
+const chubbo = Local({
+  src: "../assets/fonts/Chubbo-Variable.ttf",
+  variable: "--font-chubbo",
 });
 
 const supreme = Local({
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${SN.variable} ${supreme.variable} h-full antialiased`}
+      className={`${chubbo.variable} ${supreme.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Suspense fallback={null}>

@@ -221,7 +221,7 @@ export default function DateWheelPicker({
 
   return (
     <div
-      className={`inline-block rounded-md corner-squircle shadow-lg bg-white px-2 ${className}`}
+      className={`inline-block rounded-md corner-squircle shadow-[0_1px_60px_1px_rgba(0,0,0,0.2)] bg-white px-2 ${className}`}
     >
       <style>{`.dwp-scroll::-webkit-scrollbar { display: none; }`}</style>
       <div

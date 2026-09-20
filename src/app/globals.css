@@ -3,8 +3,8 @@
 @plugin "tailwindcss-noise";
 
 @theme inline {
-  --font-sans: var(--font-sn);
-  --font-display:var(--font-supreme);
+  --font-display: var(--font-supreme);
+  --font-title: var(--font-chubbo);
 }
 
 body {

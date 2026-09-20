@@ -14,18 +14,20 @@ export default async function FormsView({ searchParams }: Props) {
   const params = await searchParams;
   const page = +(params.page ?? "1");
 
-  const [paginated,allDocs]=await Promise.all([
+  const [paginated, allDocs] = await Promise.all([
     db.query.form.findMany({
-      offset:(page-1)*20,
-      limit:20,
-      orderBy:(fields,{desc})=>desc(fields.createdAt)
+      offset: (page - 1) * 20,
+      limit: 20,
+      orderBy: (fields, { desc }) => desc(fields.createdAt),
     }),
-    db.query.form.findMany({
-      columns:{
-        id:true
-      }
-    }).then(res=>res.length)
-  ])
+    db.query.form
+      .findMany({
+        columns: {
+          id: true,
+        },
+      })
+      .then((res) => res.length),
+  ]);
 
   if (paginated.length === 0) {
     return (
@@ -41,7 +43,7 @@ export default async function FormsView({ searchParams }: Props) {
     <div className="w-full h-full flex flex-col items-start justify-start">
       <div className="w-full flex items-center px-3 py-2 justify-between border-b border-b-solid border-b-neutral-200">
         <h1 className="font-bold text-lg uppercase">Filled Forms</h1>
-        <Pagination currentPage={page} totalPages={Math.ceil(allDocs/20)}/>
+        <Pagination currentPage={page} totalPages={Math.ceil(allDocs / 20)} />
       </div>
       {paginated.map((form) => (
         <FormItem form={form} key={form.id} />
@@ -66,12 +68,15 @@ const FormItem = React.memo(
             )}
           </div>
           <div className="flex items-center justify-end gap-2">
-            <button type="button" className="p-1.25 border border-solid border-red-200 text-red-500 bg-red-50">
-              <TrashBinMinimalistic size={14} weight="Bold"/>
+            <button
+              type="button"
+              className="p-1.25 border border-solid border-red-200 text-red-500 bg-red-50"
+            >
+              <TrashBinMinimalistic size={14} weight="Bold" />
             </button>
             <Collapsible.Trigger className="border border-solid border-neutral-200 flex items-center bg-neutral-50 justify-center p-1.25">
-            <AltArrowDown size={14} weight="Linear" />
-          </Collapsible.Trigger>
+              <AltArrowDown size={14} weight="Linear" />
+            </Collapsible.Trigger>
           </div>
         </div>
         <Collapsible.Panel className="px-5 py-3 border-t border-t-solid border-t-neutral-200 flex flex-col justify-end overflow-hidden transition-[height] duration-50 ease-[ease-out] [&[hidden]:not([hidden='until-found'])]:hidden data-ending-style:h-0 data-starting-style:h-0">
@@ -83,12 +88,18 @@ const FormItem = React.memo(
               <span className="input">{form.lastName}</span>
             </div>
             <div className="w-full flex items-center justify-start gap-3">
-              <span className="input">{new Date(form.dateOfBirth!).toLocaleString()}</span>
+              <span className="input">
+                {new Date(form.dateOfBirth!).toLocaleString()}
+              </span>
               <span className="input">{form.passportNumber}</span>
-              <span className="input">{new Date(form.passportIssueDate!).toLocaleString()}</span>
+              <span className="input">
+                {new Date(form.passportIssueDate!).toLocaleString()}
+              </span>
             </div>
             <div className="w-full flex items-center justify-start gap-3">
-              <span className="input">{new Date(form.passportExpiry!).toLocaleString()}</span>
+              <span className="input">
+                {new Date(form.passportExpiry!).toLocaleString()}
+              </span>
               <span className="input uppercase">{form.maritalStatus}</span>
               <span className="input">{form.phoneNumber}</span>
             </div>
@@ -158,14 +169,18 @@ const FormItem = React.memo(
             <h1 className="uppercase font-bold">Visa Information</h1>
             <div className="w-full flex items-center justify-start gap-3">
               <span className="input">
-                Previously Issued: 
-                <span className={`font-bold uppercase mx-2 ${form.previouslyIssued?"text-red-500":"text-green-500"}`}>
+                Previously Issued:
+                <span
+                  className={`font-bold uppercase mx-2 ${form.previouslyIssued ? "text-red-500" : "text-green-500"}`}
+                >
                   {String(form.previouslyIssued?.valueOf())}
                 </span>
               </span>
               <span className="input">
                 Previously Refused:
-                <span className={`font-bold uppercase mx-2 ${form.previouslyRefused?"text-red-500":"text-green-500"}`}>
+                <span
+                  className={`font-bold uppercase mx-2 ${form.previouslyRefused ? "text-red-500" : "text-green-500"}`}
+                >
                   {String(form.previouslyRefused?.valueOf())}
                 </span>
               </span>

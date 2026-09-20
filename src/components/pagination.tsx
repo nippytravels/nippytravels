@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ArrowLeft, ArrowRight } from '@solar-icons/react/ssr';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeft, ArrowRight } from "@solar-icons/react/ssr";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type PaginationProps = {
   currentPage: number;
@@ -9,8 +9,8 @@ type PaginationProps = {
   //   onPageChangeAction: (page: number) => void;
 };
 
-function getPages(current: number, total: number): (number | '...')[] {
-  const pages: (number | '...')[] = [];
+function getPages(current: number, total: number): (number | "...")[] {
+  const pages: (number | "...")[] = [];
   const delta = 1;
 
   for (let i = 1; i <= total; i++) {
@@ -21,7 +21,7 @@ function getPages(current: number, total: number): (number | '...')[] {
     ) {
       pages.push(i);
     } else if (i === current - delta - 1 || i === current + delta + 1) {
-      pages.push('...');
+      pages.push("...");
     }
   }
 
@@ -41,7 +41,7 @@ export default function Pagination({
     if (page < 1 || page > totalPages) return;
 
     const params = new URLSearchParams(searchParams.toString());
-    params.set('page', String(page));
+    params.set("page", String(page));
     const newUrl = `${pathname}?${params.toString()}`;
 
     router.push(newUrl, { scroll: true });
@@ -68,18 +68,18 @@ export default function Pagination({
         {/* Pages */}
         {pages.map((page, index) => (
           <li key={index}>
-            {page === '...' ? (
+            {page === "..." ? (
               <span className="p-2 text-foreground-400 text-sm">…</span>
             ) : (
               <button
                 type="button"
                 onClick={() => navigateToPage(page)}
-                aria-current={page === currentPage ? 'page' : undefined}
+                aria-current={page === currentPage ? "page" : undefined}
                 className={`px-2 py-1.25 border text-sm transition corner-squircle rounded-md
                   ${
                     page === currentPage
-                      ? 'bg-blue-100 text-blue-600 border-blue-200'
-                      : 'bg-white text-neutral-950 border-neutral-200 hover:bg-secondary-100 hover:text-blue-500 hover:border-blue-200'
+                      ? "bg-blue-100 text-blue-600 border-blue-200"
+                      : "bg-white text-neutral-950 border-neutral-200 hover:bg-secondary-100 hover:text-blue-500 hover:border-blue-200"
                   }
                 `}
               >

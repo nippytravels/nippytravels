@@ -33,11 +33,13 @@ export default async function Layout({
     redirect(`https://${ROOT_DOMAIN}`); // logged in, but not an admin
   }
 
-  return <main id="workspace" className="p-2 w-full h-screen">
-    <div className="w-full h-full rounded-lg corner-squircle border border-solid border-neutral-200 bg-white">
-      {children}
-    </div>
-  </main>;
+  return (
+    <main id="workspace" className="p-2 w-full h-screen">
+      <div className="w-full h-full rounded-lg corner-squircle border border-solid border-neutral-200 bg-white">
+        {children}
+      </div>
+    </main>
+  );
 }
 
 function getSubdomain(hostname: string): string | null {
