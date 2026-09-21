@@ -1,62 +1,24 @@
+"use client";
+
 import { Collapsible } from "@base-ui/react/collapsible";
 import { AltArrowDown, TrashBinMinimalistic } from "@solar-icons/react/ssr";
 import moment from "moment";
+import { useAction } from "next-safe-action/hooks";
 import React from "react";
-import { db } from "@/lib/db";
+import { toast } from "sonner";
+import { deleteForm } from "@/lib/actions";
 import type * as S from "@/lib/db/schema";
-import { Pagination } from "@/components";
-
-type Props = {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-export default async function FormsView({ searchParams }: Props) {
-  const params = await searchParams;
-  const page = +(params.page ?? "1");
-
-  const [paginated, allDocs] = await Promise.all([
-    db.query.form.findMany({
-      offset: (page - 1) * 20,
-      limit: 20,
-      orderBy: (fields, { desc }) => desc(fields.createdAt),
-    }),
-    db.query.form
-      .findMany({
-        columns: {
-          id: true,
-        },
-      })
-      .then((res) => res.length),
-  ]);
-
-  if (paginated.length === 0) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center">
-        <h1 className="text-2xl text-neutral-500 font-bold">
-          No Filled Forms Right Now
-        </h1>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full h-full flex flex-col items-start justify-start">
-      <div className="w-full flex items-center px-3 py-2 justify-between border-b border-b-solid border-b-neutral-200">
-        <h1 className="font-bold text-lg uppercase">Filled Forms</h1>
-        <Pagination currentPage={page} totalPages={Math.ceil(allDocs / 20)} />
-      </div>
-      {paginated.map((form) => (
-        <FormItem form={form} key={form.id} />
-      ))}
-    </div>
-  );
-}
+import { Spinner } from "./atoms";
 
 const FormItem = React.memo(
   ({ form }: { form: typeof S.form.$inferSelect }) => {
+    const { execute, isExecuting } = useAction(deleteForm, {
+      onSuccess: () => toast.success("Form Deleted Successfully"),
+    });
+
     return (
-      <Collapsible.Root className="w-full border-b border-b-solid border-b-neutral-200">
-        <div className="flex items-center justify-between px-3 py-5">
+      <Collapsible.Root className="w-full border border-solid border-neutral-200 rounded-md corner-squircle">
+        <div className="flex items-center justify-between px-3 py-3">
           <div className="flex flex-col items-start justify-centere">
             <span className="uppercase font-bold text-sm">
               {form.firstName} {form.lastName}
@@ -70,16 +32,21 @@ const FormItem = React.memo(
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
-              className="p-1.25 border border-solid border-red-200 text-red-500 bg-red-50"
+              onClick={() => execute({ formId: form.id })}
+              className="p-1.25 border border-solid border-red-200 text-red-500 bg-red-50 rounded-md corner-squircle"
             >
-              <TrashBinMinimalistic size={14} weight="Bold" />
+              {isExecuting ? (
+                <Spinner size={10} color="#FB2C36" />
+              ) : (
+                <TrashBinMinimalistic size={14} weight="Bold" />
+              )}
             </button>
-            <Collapsible.Trigger className="border border-solid border-neutral-200 flex items-center bg-neutral-50 justify-center p-1.25">
+            <Collapsible.Trigger className="border border-solid border-neutral-200 flex items-center bg-neutral-50 hover:bg-neutral-100 rounded-md corner-squircle justify-center p-1.25">
               <AltArrowDown size={14} weight="Linear" />
             </Collapsible.Trigger>
           </div>
         </div>
-        <Collapsible.Panel className="px-5 py-3 border-t border-t-solid border-t-neutral-200 flex flex-col justify-end overflow-hidden transition-[height] duration-50 ease-[ease-out] [&[hidden]:not([hidden='until-found'])]:hidden data-ending-style:h-0 data-starting-style:h-0">
+        <Collapsible.Panel className="px-3 py-3 border-t border-t-solid border-t-neutral-200 flex flex-col gap-3 justify-end overflow-hidden transition-[height] duration-50 ease-[ease-out] [&[hidden]:not([hidden='until-found'])]:hidden data-ending-style:h-0 data-starting-style:h-0">
           <div className="flex flex-col items-start justify-center gap-3">
             <h1 className="uppercase font-bold">Personal Information</h1>
             <div className="w-full flex items-center justify-start gap-3">
@@ -191,3 +158,5 @@ const FormItem = React.memo(
     );
   },
 );
+
+export default FormItem;

@@ -6,6 +6,7 @@ import {
   AltArrowRight,
   CheckCircle,
 } from "@solar-icons/react/ssr";
+import { motion } from "motion/react";
 import type React from "react";
 import {
   Children,
@@ -198,16 +199,23 @@ export function Root<TFullData extends FieldValues>({
           {stepConfigs.map((config, idx) => (
             <Fragment key={config.id}>
               <div
-                className={`w-full px-5 py-2 uppercase font-medium text-center text-xs rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-white text-neutral-800"}`}
+                className={`w-full px-5 py-2 uppercase font-medium text-center text-[13px] rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-neutral-100 text-neutral-800"}`}
               >
-                <span className="whitespace-nowrap shrink-0 ">
+                <span className="whitespace-nowrap shrink-0 font-title tracking-wide">
                   {idx + 1}. {config.title}
                 </span>
               </div>
               {idx !== stepConfigs.length - 1 && (
-                <div
-                  className={`h-2 hidden md:lg:xl:flex rounded-md w-full ${currentStep === idx + 1 || currentStep > 1 ? "bg-black/20" : "bg-white"}`}
-                />
+                <div className="w-full bg-neutral-100 rounded-full">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{
+                      width:
+                        currentStep === idx + 1 || currentStep > 1 ? "100%" : 0,
+                    }}
+                    className={`p-1 hidden md:lg:xl:flex rounded-md w-full ${currentStep === idx + 1 || currentStep > 1 ? "bg-black/20" : "bg-neutral-200"}`}
+                  />
+                </div>
               )}
             </Fragment>
           ))}
@@ -235,7 +243,7 @@ export function Root<TFullData extends FieldValues>({
               className="bg-black text-white rounded-full p-2 text-sm"
             >
               {formState.isSubmitting ? (
-                <Spinner size={16} color="#FFFFFF" />
+                <Spinner size={12} color="#FFFFFF" />
               ) : isLastStep ? (
                 <CheckCircle size={18} weight="Bold" />
               ) : (

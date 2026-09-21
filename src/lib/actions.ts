@@ -1,9 +1,11 @@
 "use server";
 
 import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import z from "zod";
 import * as S from "@/lib/db/schema";
 import { client } from "./action-client";
 import { db } from "./db";
@@ -73,4 +75,16 @@ export const submitFormAction = client
     return {
       user: created,
     };
+  });
+
+export const deleteForm = client
+  .inputSchema(
+    z.object({
+      formId: z.string(),
+    }),
+  )
+  .action(async ({ parsedInput }) => {
+    await db.delete(S.form).where(eq(S.form.id, parsedInput.formId));
+
+    return redirect("/admin/forms");
   });

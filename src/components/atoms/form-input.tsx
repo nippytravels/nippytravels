@@ -365,7 +365,7 @@ function SelectInput<T extends FieldValues>({
       onValueChange={field.onChange}
       multiple={multiple}
     >
-      <Combobox.InputGroup className="relative h-8 w-full border border-solid border-neutral-200 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white dark:border-white [&>input]:pr-10 has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+2rem*2)]">
+      <Combobox.InputGroup className="relative w-full border border-solid border-neutral-100 rounded-md corner-squircle [&>input]:pr-10 has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+2rem*2)]">
         <Combobox.Input
           placeholder={`eg ${options[0].value}`}
           id={field.name}

@@ -8,8 +8,10 @@ import {
 } from "./icons";
 import Spinner from "./spinner";
 import Switch from "./switch";
+import Tooltip from "./tooltip";
 
 export {
+  Tooltip,
   Avatar,
   Switch,
   Spinner,

@@ -27,7 +27,7 @@ export default function Page() {
         className="bg-white w-2/6 rounded-xl border border-solid shadow-lg corner-squircle border-neutral-300 p-4 flex flex-col items-center justify-center gap-5"
         onSubmit={handleSubmitWithAction}
       >
-        <h1 className="my-3 font-extrabold text-xl text-center text-blue-400">
+        <h1 className="my-3 font-title font-extrabold text-xl text-center text-blue-400">
           Login To Meridian Viewer for Nippy Travels
         </h1>
         <FormInput
