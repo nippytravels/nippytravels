@@ -40,8 +40,8 @@ export default async function Layout({
 
   return (
     <main className="w-full font-dash noise-medium h-screen flex flex-col-reverse md:lg:xl:flex-row">
-      <div className="w-full h-[3%] md:lg:xl:w-[3%] md:lg:xl:h-full flex flex-col items-center justify-between py-2">
-        <div className="flex flex-col items-center justify-center pt-2 h-full gap-3 w-full">
+      <div className="w-full h-[5%] md:lg:xl:w-[3%] md:lg:xl:h-full flex md:lg:xl:flex-col items-center justify-between py-2">
+        <div className="flex flex-col items-start px-5 md:lg:xl:px-0 md:lg:xl:items-center justify-center pt-2 h-full gap-3 w-full">
           <Tooltip content="View Forms">
             <NavLink href="/admin/forms">
               <Document size={20} weight="Bold" />
@@ -69,7 +69,7 @@ export default async function Layout({
           </Menu.Portal>
         </Menu.Root>
       </div>
-      <div className="w-full h-[97%] md:lg:xl:h-full md:lg:xl:w-[97%] bg-white md:lg:xl:rounded-l-xl md:lg:xl:border-l md:lg:xl:border-l-solid md:lg:xl:border-l-neutral-200">
+      <div className="w-full h-full md:lg:xl:h-full md:lg:xl:w-[97%] bg-white md:lg:xl:rounded-l-xl md:lg:xl:border-l md:lg:xl:border-l-solid md:lg:xl:border-l-neutral-200">
         {children}
       </div>
     </main>
