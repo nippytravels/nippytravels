@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Geist } from "next/font/google";
 import Local from "next/font/local";
 import { Suspense } from "react";
-import { Root } from "@/components/index";
 
-const title = Local({
-  src: "../assets/fonts/Tanker-Regular.ttf",
-  variable: "--font-t",
+const serif = Local({
+  src: "../assets/fonts/bricolage.ttf",
+  variable: "--font-bricolage",
 });
 
-const admin = Geist({
-  variable: "--font-admin",
-});
-
-const display = Local({
-  src: "../assets/fonts/BespokeSerif-Regular.ttf",
-  variable: "--font-sub",
+const sans = Local({
+  src: "../assets/fonts/onest.ttf",
+  variable: "--font-onest",
 });
 
 export const metadata: Metadata = {
@@ -28,12 +22,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${title.variable} ${display.variable} ${admin.variable} h-full antialiased`}
+      className={`${sans.variable} ${serif.variable} antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Suspense fallback={null}>
-          <Root>{children}</Root>
-        </Suspense>
+        <Suspense fallback={null}>{children}</Suspense>
       </body>
     </html>
   );

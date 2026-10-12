@@ -1,104 +1,368 @@
-import { Documents, Planet3, UserHands } from "@solar-icons/react/ssr";
-import Image from "next/image";
+/** biome-ignore-all lint/a11y/useAnchorContent: no time*/
+"use client";
+
+import { Menu } from "@base-ui/react/menu";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import Link from "next/link";
-import bg from "@/assets/images/Blue sky-2048x1236.png";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import type z from "zod";
+import { FormInput } from "@/components/atoms";
+import { QuoteSchema } from "@/lib/validations";
+
+type Service = { title: string; body: string };
+type Point = { title: string; body: string };
+
+const services: Service[] = [
+  {
+    title: "Visa assistance",
+    body: "Guidance on entry requirements, documents and applications for your destination, so nothing is missing at submission.",
+  },
+  {
+    title: "Flight booking",
+    body: "Domestic or international flights that fit your schedule and budget. We compare routes, airlines, fares and baggage options before you travel.",
+  },
+  {
+    title: "Airport transfers",
+    body: "Reliable transport between the airport, your hotel and key destinations, with no unfamiliar routes or last-minute scrambling.",
+  },
+  {
+    title: "Travel consultation",
+    body: "Personalised advice on destinations, trip timing, budgets, travel requirements and itineraries.",
+  },
+];
+
+const approach: Point[] = [
+  {
+    title: "One point of contact",
+    body: "Deal with one team for every part of your trip, instead of chasing several providers.",
+  },
+  {
+    title: "Clear options",
+    body: "We lay out your choices and costs plainly, so you decide with full information.",
+  },
+  {
+    title: "Planned end to end",
+    body: "From paperwork to the ride waiting at arrivals, each step is arranged ahead of time.",
+  },
+];
+
+const btn =
+  "inline-flex min-h-[52px] w-full items-center justify-center rounded-full px-6 text-base font-semibold transition md:min-h-12 md:w-auto md:px-[26px] md:text-[15px]";
+const btnPrimary = `${btn} border border-clay bg-clay text-white hover:brightness-110`;
+const btnOutline = `${btn} border border-sand-400 text-ink hover:bg-sand-100`;
+const btnOnDark = `${btn} border border-ink-500 text-sand hover:bg-ink-800`;
+
+const eyebrow =
+  "mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-stone md:mb-5 md:text-[13px]";
+const h2 =
+  "font-display text-[34px] leading-[1.1] tracking-[-0.015em] md:text-[44px]";
 
 export default function Home() {
   return (
-    <div className="w-full font-title">
-      <div className="w-full h-full bg-black/5 absolute -z-5" />
-      <Image
-        src={bg}
-        alt="bg"
-        placeholder="blur"
-        quality={100}
-        fill
-        sizes="100vw"
-        className="object-cover -z-10"
-      />
-      <div className="fixed px-10 py-5 z-1 top-0 w-full left-0 flex items-center justify-between">
-        <Link href="/" className="text-lg font-medium uppercase">
+    <>
+      <SiteHeader />
+
+      <main>
+        {/* Hero */}
+        <section className="mx-auto max-w-[1080px] px-8 pb-8 pt-18 md:pb-10 md:pt-28 md:text-center">
+          <p className={eyebrow}>Your express travel management agency</p>
+          <h1 className="font-display text-[46px] leading-[1.05] tracking-[-0.025em] md:mx-auto md:max-w-[860px] md:text-[76px] md:leading-[1.02]">
+            Travel, made <em className="not-italic text-clay">effortless.</em>
+          </h1>
+          <p className="mt-5 text-[17px] leading-relaxed text-stone md:mx-auto md:mt-7 md:max-w-[540px] md:text-[19px]">
+            Visas, flights, airport transfers and trip planning, handled by one
+            team from your first question to your arrival.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 md:mt-10 md:flex-row md:justify-center">
+            <a href="#contact" className={btnPrimary}>
+              Book an appointment
+            </a>
+            <Link href="/request" className={btnOutline}>
+              Request a quote
+            </Link>
+          </div>
+
+          {/* Flight path: flatter on mobile, wider on desktop */}
+          <svg
+            viewBox="0 0 342 80"
+            fill="none"
+            aria-hidden="true"
+            className="mt-12 h-auto w-full md:hidden"
+          >
+            <path
+              d="M8 70 C 100 -10, 240 -10, 334 70"
+              stroke="var(--color-sage)"
+              strokeWidth="2"
+              strokeDasharray="3 8"
+              strokeLinecap="round"
+            />
+            <circle cx="8" cy="70" r="6" fill="var(--color-clay)" />
+            <circle
+              cx="334"
+              cy="70"
+              r="6"
+              stroke="var(--color-sage)"
+              strokeWidth="2"
+            />
+          </svg>
+          <svg
+            viewBox="0 0 900 120"
+            fill="none"
+            aria-hidden="true"
+            className="mx-auto mt-[72px] hidden h-auto w-full max-w-[900px] md:block"
+          >
+            <path
+              d="M30 100 C 280 -30, 620 -30, 870 100"
+              stroke="var(--color-sage)"
+              strokeWidth="2"
+              strokeDasharray="3 8"
+              strokeLinecap="round"
+            />
+            <circle cx="30" cy="100" r="6" fill="var(--color-clay)" />
+            <circle
+              cx="870"
+              cy="100"
+              r="6"
+              stroke="var(--color-sage)"
+              strokeWidth="2"
+            />
+          </svg>
+        </section>
+
+        {/* Services */}
+        <section
+          id="services"
+          className="mx-auto max-w-[1080px] px-8 pb-6 pt-22 md:pb-10 md:pt-24"
+        >
+          <p className={eyebrow}>Services</p>
+          <h2 className={`${h2} mb-11 max-w-[560px] md:mb-14`}>
+            Everything your trip needs, in one place.
+          </h2>
+          <ol>
+            {services.map((s, i) => (
+              <li
+                key={s.title}
+                className="grid grid-cols-[40px_1fr] gap-x-2 gap-y-2.5 border-t border-sand-300 py-9 last:border-b md:grid-cols-[72px_1fr_1.3fr] md:items-baseline md:gap-x-8"
+              >
+                <span className="pt-1 font-display text-lg text-clay md:pt-0 md:text-[22px]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="font-display text-[26px] md:text-[30px]">
+                  {s.title}
+                </h3>
+                <p className="col-start-2 text-base leading-[1.7] text-stone md:col-start-3">
+                  {s.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+        {/* Approach */}
+        <section
+          id="approach"
+          className="mx-auto max-w-[1080px] px-8 pb-24 pt-22 md:pb-28 md:pt-24"
+        >
+          <p className={eyebrow}>Our approach</p>
+          <h2 className={`${h2} mb-11 max-w-[560px] md:mb-14`}>
+            A calmer way to travel.
+          </h2>
+          <div className="grid gap-10 md:grid-cols-3">
+            {approach.map((p) => (
+              <div
+                key={p.title}
+                className="border-t-2 border-sage pt-5 md:pt-6"
+              >
+                <h3 className="mb-2.5 font-display text-2xl md:mb-3 md:text-[26px]">
+                  {p.title}
+                </h3>
+                <p className="text-base leading-[1.7] text-stone">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        {/* Contact */}
+        <section id="contact" className="bg-ink">
+          <div className="mx-auto max-w-[1080px] px-8 py-24 md:grid md:grid-cols-[1fr_1.1fr] md:items-start md:gap-20 md:py-28">
+            <div>
+              <p className={`${eyebrow} text-sage`}>Get started</p>
+              <h2 className="mb-4 font-display text-[38px] leading-[1.08] tracking-[-0.02em] text-sand md:mb-5 md:text-[46px]">
+                Tell us where you&apos;d like to go.
+              </h2>
+              <p className="mb-7 text-[17px] leading-[1.7] text-sage-mist md:mb-8 md:max-w-[400px]">
+                Send a quick request, or book a time to talk it through with us.
+              </p>
+              <a href="#contact" className={btnOnDark}>
+                Book an appointment
+              </a>
+            </div>
+            <QuoteForm />
+          </div>
+        </section>
+      </main>
+      <footer className="border-t border-sand-300">
+        <div className="mx-auto flex max-w-[1080px] flex-col gap-2.5 px-8 py-14 text-sm text-stone md:min-h-24 md:flex-row md:items-center md:justify-between md:py-0">
+          <span className="font-display text-xl text-ink">Nippy Travels</span>
+          <span className="uppercase">nippytravels@gmail.com · [PHONE]</span>
+          <span>© {new Date().getFullYear()} Nippy Travels</span>
+        </div>
+      </footer>
+    </>
+  );
+}
+
+type NavLink = { href: string; label: string };
+
+const links: NavLink[] = [
+  { href: "#services", label: "Services" },
+  { href: "#approach", label: "Approach" },
+  { href: "#contact", label: "Contact" },
+];
+
+const menuItem =
+  "flex min-h-12 cursor-pointer select-none items-center rounded-xl px-4 text-base font-medium text-ink outline-none data-[highlighted]:bg-sand-100";
+
+function SiteHeader() {
+  return (
+    <header>
+      <div className="mx-auto flex h-20 max-w-[1080px] items-center justify-between px-8 md:h-22">
+        <Link
+          href="/"
+          className="font-display text-[22px] tracking-tight text-ink md:text-2xl"
+        >
           Nippy Travels
         </Link>
-        <div className="flex items-center justify-end gap-10">
-          <Link
-            href="/"
-            className="tracking-wide hidden md:lg:xl:flex text-base uppercase hover:underline font-medium transition"
-          >
-            Book an appointment
-          </Link>
-          <Link
-            href={`/?viewing=form`}
-            className="uppercase text-sm tracking-wide font-bold text-black bg-white rounded-md corner-squircle px-5 py-2"
-          >
-            Fill My Form
-          </Link>
-        </div>
+        <nav aria-label="Main" className="hidden gap-9 md:flex">
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-[15px] font-medium text-stone transition hover:text-ink"
+            >
+              {l.label}
+            </a>
+          ))}
+        </nav>
+        <a
+          href="#contact"
+          className="hidden md:lg:xl:inline-flex min-h-11 items-center justify-center rounded-full border border-sand-400 px-5 text-[15px] font-semibold text-ink transition hover:bg-sand-100"
+        >
+          Book an appointment
+        </a>
+        {/* Mobile menu */}
+        <Menu.Root>
+          <Menu.Trigger
+            aria-label="Menu"
+            render={
+              <button type="button" className="flex md:lg:xl:hidden">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                  className="text-ink"
+                >
+                  <path
+                    d="M4 8h16M4 16h16"
+                    className="group-data-[popup-open]:hidden"
+                  />
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    className="hidden group-data-[popup-open]:block"
+                  />
+                </svg>
+              </button>
+            }
+          />
+          <Menu.Portal>
+            <Menu.Positioner
+              align="end"
+              sideOffset={8}
+              className="z-20 outline-none"
+            >
+              <Menu.Popup className="w-[min(20rem,calc(100vw-4rem))] origin-[var(--transform-origin)] rounded-2xl border border-sand-300 bg-sand p-2 shadow-[0_20px_50px_rgba(26,46,32,0.12)] outline-none transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
+                {links.map((l) => (
+                  <Menu.Item
+                    key={l.href}
+                    render={<a href={l.href} />}
+                    className={menuItem}
+                  >
+                    {l.label}
+                  </Menu.Item>
+                ))}
+                <Menu.Separator className="mx-2 my-2 h-px bg-sand-300" />
+                <Menu.Item
+                  render={<a href="#contact" />}
+                  className="flex min-h-[52px] cursor-pointer select-none items-center justify-center rounded-full border border-clay bg-clay text-base font-semibold text-white outline-none data-[highlighted]:brightness-110"
+                >
+                  Book an appointment
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
       </div>
-      <div className="h-[55vh] gap-5 flex flex-col items-center justify-end py-20">
-        <div className="flex flex-col items-center text-center justify-center gap-1">
-          <h1 className="text-8xl font-bold uppercase">Nippy Travels</h1>
-          <span className="text-4xl font-medium text-neutral-500 font-display">
-            Travel Made Effortless
-          </span>
-        </div>
-        <div className="flex items-center justify-center gap-3 my-2">
-          <Link
-            href="/"
-            className="bg-black font-display font-medium uppercase text-xs text-white rounded-sm corner-squircle px-5 py-1.5"
-          >
-            Book an Appointment
-          </Link>
-          <Link
-            href={`/?viewing=form`}
-            className="font-display px-5 py-1.5 rounded-sm bg-white uppercase font-bold text-xs shadow-lg"
-          >
-            Fill My Form
-          </Link>
-        </div>
-      </div>
-      <div className="w-full h-[45vh] px-5">
-        <div className="bg-white shadow-[0_-5px_90px_10px_rgba(0,0,0,0.3)] rounded-t-3xl corner-squircle p-5 h-full grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-3xl flex flex-col items-end justify-between bg-neutral-50 p-6 md:col-span-2">
-            <div className="flex flex-col items-start justify-start">
-              <h2 className="text-2xl uppercase font-semibold">
-                Visa Assistance
-              </h2>
-              <p className="mt-2 text-neutral-400 font-display">
-                Find and book domestic or international flights that fit your
-                schedule and budget. We help compare routes, airlines, fares,
-                and baggage options before you travel.
-              </p>
-            </div>
-            <Documents size={30} weight="Bold" />
-          </div>
-          <div className="rounded-3xl flex flex-col items-start justify-between bg-neutral-50 p-6 md:col-span-1 md:row-span-3">
-            <Planet3 size={80} weight="Bold" />
-            <div className="flex flex-col items-start justify-end">
-              <h2 className="text-xl font-semibold uppercase">
-                Airport Transfers
-              </h2>
-              <p className="mt-2 text-neutral-400 font-display">
-                Arrange reliable transportation between the airport, your hotel,
-                and key destinations. Travel comfortably on arrival without
-                worrying about unfamiliar routes or last-minute transport.
-              </p>
-            </div>
-          </div>
-          <div className="rounded-2xl flex flex-col items-start justify-between corner-squircle bg-neutral-50 md:row-span-2 p-6 md:col-span-2">
-            <UserHands size={40} weight="Bold" />
-            <div className="flex flex-col items-start justify-end">
-              <h2 className="text-xl font-semibold uppercase">
-                Travel Consultation
-              </h2>
-              <p className="mt-2 text-neutral-400 font-display">
-                Receive personalised advice on destinations, trip timing,
-                budgets, travel requirements, and itineraries.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </header>
+  );
+}
+
+type QuoteValues = z.infer<typeof QuoteSchema>;
+
+function QuoteForm() {
+  const router = useRouter();
+  const { control, handleSubmit, formState } = useForm<QuoteValues>({
+    resolver: zodResolver(QuoteSchema),
+    defaultValues: { destination: "", travelDate: "", email: "" },
+  });
+
+  const onSubmit = (values: QuoteValues) => {
+    const params = new URLSearchParams({
+      destination: values.destination,
+      email: values.email,
+    });
+    const date = new Date(values.travelDate);
+    if (!Number.isNaN(date.getTime()))
+      params.set("date", format(date, "yyyy-MM-dd"));
+    router.push(`/request?${params.toString()}`);
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="mt-10 flex flex-col gap-5 rounded-[20px] bg-white p-7 md:mt-0 md:p-10"
+    >
+      <FormInput
+        control={control}
+        name="destination"
+        label="Destination"
+        placeholder="Where to?"
+      />
+      <FormInput
+        control={control}
+        name="travelDate"
+        label="Travel date"
+        type="date"
+        placeholder="Pick a date"
+      />
+      <FormInput
+        control={control}
+        name="email"
+        label="Email"
+        placeholder="you@example.com"
+      />
+      <button
+        type="submit"
+        disabled={formState.isSubmitting}
+        className={`${btnPrimary} mt-2 md:w-full`}
+      >
+        Request a quote
+      </button>
+    </form>
   );
 }

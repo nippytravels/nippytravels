@@ -1,7 +1,7 @@
 "use server";
 
 import crypto from "node:crypto";
-import { eq } from "drizzle-orm";
+import { desc, eq, getTableColumns, type SQL, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -9,9 +9,17 @@ import z from "zod";
 import * as S from "@/lib/db/schema";
 import { client } from "./action-client";
 import { db } from "./db";
-import { FormSchema, LoginSchema } from "./validations";
+import { LoginSchema, type RequestValues, requestSchema } from "./validations";
 
 const isDev = process.env.NODE_ENV === "development";
+
+const { search: _search, ...formColumns } = getTableColumns(S.form);
+
+const toPrefixQuery = (input: string): SQL | null => {
+  const tokens = input.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  if (tokens.length === 0) return null;
+  return sql`to_tsquery('english', ${tokens.map((t) => `${t}:*`).join(" & ")})`;
+};
 
 export const getForms = cache(
   async (page: number) =>
@@ -44,37 +52,33 @@ export const login = client
     return redirect(isDev ? "/admin" : "https://admin.nippytravels.com/admin");
   });
 
-export const submitFormAction = client
-  .inputSchema(FormSchema)
+async function saveRequest(request: RequestValues) {
+  // TODO: persist to your database and notify the owner
+
+  const created = (
+    await db
+      .insert(S.form)
+      .values({
+        id: crypto.randomUUID().toString(),
+        ...request,
+      })
+      .returning({
+        email: S.form.email,
+        firstName: S.form.firstName,
+        lastName: S.form.lastName,
+      })
+  ).at(0);
+
+  if (!created) throw new Error("Error saving form information");
+
+  console.log({ created });
+}
+
+export const submitRequest = client
+  .inputSchema(requestSchema)
   .action(async ({ parsedInput }) => {
-    console.log({ parsedInput });
-
-    const created = (
-      await db
-        .insert(S.form)
-        .values({
-          id: crypto.randomUUID().toString(),
-          // ...parsedInput.children,
-          ...parsedInput.employerInfo,
-          ...parsedInput.parents,
-          ...parsedInput.personalInfo,
-          ...parsedInput.spouse,
-          ...parsedInput.visaInfo,
-        })
-        .returning({
-          email: S.form.email,
-          firstName: S.form.firstName,
-          lastName: S.form.lastName,
-        })
-    ).at(0);
-
-    if (!created) throw new Error("Error saving form information");
-
-    console.log({ created });
-
-    return {
-      user: created,
-    };
+    await saveRequest(parsedInput);
+    return { success: true };
   });
 
 export const deleteForm = client
@@ -88,3 +92,23 @@ export const deleteForm = client
 
     return redirect("/admin/forms");
   });
+
+export const searchForms = async (
+  input: string,
+  page: { limit: number; offset: number },
+) => {
+  const query = toPrefixQuery(input);
+  if (!query) return [];
+
+  const rank = sql<number>`ts_rank_cd(${S.form.search}, ${query})`.mapWith(
+    Number,
+  );
+
+  return await db
+    .select({ ...formColumns, rank })
+    .from(S.form)
+    .where(sql`${S.form.search} @@ ${query}`)
+    .orderBy(desc(rank), desc(S.form.id))
+    .limit(page.limit)
+    .offset(page.offset);
+};

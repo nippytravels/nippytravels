@@ -1,5 +1,5 @@
 {
-  "id": "4e89662e-35b2-40b2-880a-c2fe5d5be299",
+  "id": "42ee03f7-9489-4b15-8320-836255d6f73d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -93,8 +93,12 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -242,6 +246,30 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "search": {
+          "name": "search",
+          "type": "tsvector",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "as": "\n      setweight(to_tsvector('english', \"forms\".\"email\"), 'A') ||\n      setweight(to_tsvector('english', \"forms\".\"passport_number\"), 'B')\n    ",
+            "type": "stored"
+          }
         }
       },
       "indexes": {
@@ -259,6 +287,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "form_search_index": {
+          "name": "form_search_index",
+          "columns": [
+            {
+              "expression": "search",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
         }
       },
       "foreignKeys": {},
@@ -267,22 +310,30 @@
         "forms_passport_number_unique": {
           "name": "forms_passport_number_unique",
           "nullsNotDistinct": false,
-          "columns": ["passport_number"]
+          "columns": [
+            "passport_number"
+          ]
         },
         "forms_passport_issue_date_unique": {
           "name": "forms_passport_issue_date_unique",
           "nullsNotDistinct": false,
-          "columns": ["passport_issue_date"]
+          "columns": [
+            "passport_issue_date"
+          ]
         },
         "forms_phone_number_unique": {
           "name": "forms_phone_number_unique",
           "nullsNotDistinct": false,
-          "columns": ["phone_number"]
+          "columns": [
+            "phone_number"
+          ]
         },
         "forms_email_unique": {
           "name": "forms_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -354,8 +405,12 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -365,7 +420,9 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": ["token"]
+          "columns": [
+            "token"
+          ]
         }
       },
       "policies": {},
@@ -453,7 +510,9 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -514,7 +573,10 @@
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": ["user", "admin"]
+      "values": [
+        "user",
+        "admin"
+      ]
     }
   },
   "schemas": {},

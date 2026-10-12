@@ -38,6 +38,12 @@ CREATE TABLE "forms" (
 	"employer_email_address" text,
 	"previously_refused" boolean DEFAULT false,
 	"previously_issued" boolean DEFAULT false,
+	"created_at" timestamp DEFAULT now(),
+	"updated_at" timestamp DEFAULT now(),
+	"search" "tsvector" GENERATED ALWAYS AS (
+      setweight(to_tsvector('english', "forms"."email"), 'A') ||
+      setweight(to_tsvector('english', "forms"."passport_number"), 'B')
+    ) STORED,
 	CONSTRAINT "forms_passport_number_unique" UNIQUE("passport_number"),
 	CONSTRAINT "forms_passport_issue_date_unique" UNIQUE("passport_issue_date"),
 	CONSTRAINT "forms_phone_number_unique" UNIQUE("phone_number"),
@@ -83,4 +89,5 @@ CREATE TABLE "verification" (
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "email_index" ON "forms" USING btree ("email");
+CREATE INDEX "email_index" ON "forms" USING btree ("email");--> statement-breakpoint
+CREATE INDEX "form_search_index" ON "forms" USING gin ("search");

@@ -2,14 +2,52 @@
 @plugin "@toolwind/corner-shape";
 @plugin "tailwindcss-noise";
 
-@theme inline {
-  --font-display: var(--font-sub);
-  --font-title: var(--font-t);
-  --font-dash:var(--font-admin)
+@theme inline{
+  /* Fonts */
+  --font-sans: var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-onest), ui-sans-serif, system-ui, sans-serif;
+ 
+  /* Ink: deep green. Dark surfaces, headings, primary text */
+  --color-ink: #1a2e20;
+  --color-ink-800: #243d2b;   /* hover on dark surfaces */
+  --color-ink-700: #2a4531;   /* active nav item on dark */
+  --color-ink-500: #5d7a62;   /* borders on dark, progress fill */
+ 
+  /* Sage: light green. Route line, rules, accents on dark */
+  --color-sage: #a8bf9b;
+  --color-sage-mist: #c9d6c6; /* body text on ink */
+  --color-sage-100: #e3ecda;  /* tinted backgrounds (In review, Complete) */
+  --color-sage-800: #2f4a2c;  /* text on sage-100 */
+ 
+  /* Clay: terracotta. Primary actions and highlights */
+  --color-clay: #b5532f;
+  --color-clay-100: #f6e2d8;  /* New status background */
+  --color-clay-800: #8a3a1b;  /* text on clay-100 */
+ 
+  /* Ochre: warning / awaiting info */
+  --color-ochre-100: #f3e6c4;
+  --color-ochre-800: #6b4f0f;
+ 
+  /* Sand: warm neutrals */
+  --color-sand: #faf7f2;      /* page background, text on ink */
+  --color-sand-100: #f0eadf;  /* hover on light surfaces */
+  --color-sand-300: #e0d8c8;  /* hairlines and dividers */
+  --color-sand-400: #cdc3af;  /* input and secondary button borders */
+  --color-stone: #5a6159;     /* muted body text */
+ 
+  /* Semantic aliases */
+  --color-background: var(--color-sand);
+  --color-foreground: var(--color-ink);
+  --color-muted: var(--color-stone);
+  --color-primary: var(--color-clay);
+  --color-primary-foreground: #ffffff;
+  --color-border: var(--color-sand-300);
+  --color-input: var(--color-sand-400);
+  --color-ring: var(--color-clay);
 }
 
 body {
-  @apply font-display text-neutral-950 bg-neutral-50 bg-cover select-none;
+  @apply font-sans text-neutral-950 bg-neutral-50 bg-cover select-none;
 }
 
 button {

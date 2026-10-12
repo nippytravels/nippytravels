@@ -395,7 +395,7 @@ function SelectInput<T extends FieldValues>({
           <Combobox.Popup className="group min-w-(--anchor-width) origin-(--transform-origin) bg-clip-padding border border-neutral-200 bg-white rounded-md text-neutral-950 outline-hidden shadow transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-[side=none]:translate-y-px data-[side=none]:min-w-[calc(var(--anchor-width)+1.75rem)] data-[side=none]:data-ending-style:transition-none data-starting-style:scale-[0.98] data-starting-style:opacity-0 data-[side=none]:data-starting-style:scale-100 data-[side=none]:data-starting-style:opacity-100 data-[side=none]:data-starting-style:transition-none">
             <Combobox.Empty>
               <div className="py-4 pr-4 pl-2 text-sm leading-4 text-neutral-400">
-                No {field.name.split(".")[1].toUpperCase()} found
+                No {field.name.split(".")[1]?.toUpperCase()} found
               </div>
             </Combobox.Empty>
             <Combobox.Arrow className="top-0 z-1 flex h-4 w-full cursor-default items-center justify-center bg-white text-center text-xs before:absolute data-[side=none]:before:-top-full before:left-0 before:h-full before:w-full before:content-['']" />

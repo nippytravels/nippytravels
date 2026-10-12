@@ -1,11 +1,17 @@
+import { type SQL, sql } from "drizzle-orm";
 import {
   boolean,
+  customType,
   index,
   pgEnum,
   pgTable,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+
+const tsVector = customType<{ data: string }>({
+  dataType: () => "tsvector",
+});
 
 export const role = pgEnum("role", ["user", "admin"]);
 
@@ -91,6 +97,18 @@ export const form = pgTable(
     previouslyIssued: boolean("previously_issued").default(false),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
+    search: tsVector("search").generatedAlwaysAs(
+      (): SQL => sql`
+      setweight(to_tsvector('english', ${form.email}), 'A') ||
+      setweight(to_tsvector('english', ${form.passportNumber}), 'B')
+    `,
+    ),
   },
-  (tbl) => [index("email_index").on(tbl.email)],
+  (tbl) => [
+    index("email_index").on(tbl.email),
+    index("form_search_index").using("gin", tbl.search),
+  ],
 );
+
+export type Form = Omit<typeof form.$inferSelect, "search">;
+export type FormSearchResult = Form & { rank: number };

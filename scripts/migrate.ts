@@ -1,9 +1,13 @@
+import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import * as schema from "../src/lib/db/schema";
 
+dotenv.config();
+
 async function main() {
+  console.log(process.env.DATABASE_URL);
   const pool = postgres(process.env.DATABASE_URL!);
 
   const db = drizzle(pool, { schema });
