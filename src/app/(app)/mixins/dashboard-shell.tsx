@@ -89,7 +89,6 @@ export default function DashboardShell({
 
   return (
     <div className="flex min-h-screen flex-col bg-sand text-ink lg:h-screen lg:flex-row lg:overflow-hidden">
-      {/* Backdrop for the mobile drawer */}
       {mobileOpen && (
         <button
           type="button"
@@ -98,7 +97,6 @@ export default function DashboardShell({
           className="fixed inset-0 z-30 bg-ink/40 lg:hidden"
         />
       )}
-
       <aside
         id="dashboard-sidebar"
         aria-label="Dashboard"
@@ -119,7 +117,6 @@ export default function DashboardShell({
             <Icon d="M6 6l12 12M18 6L6 18" />
           </button>
         </div>
-
         <nav aria-label="Dashboard pages" className="flex flex-col gap-1">
           {navItems.map((n) => (
             <Link
@@ -145,7 +142,7 @@ export default function DashboardShell({
           <span className="text-[13px]">{session?.user.email}</span>
         </div>
       </aside>
-
+      {/* Backdrop for the mobile drawer */}{" "}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* Shown on mobile, and on desktop whenever the sidebar is collapsed */}
         <div
@@ -164,7 +161,6 @@ export default function DashboardShell({
             Nippy Travels
           </Link>
         </div>
-
         {children}
       </div>
     </div>
