@@ -1,3 +1,6 @@
+import { eq, or, sql } from "drizzle-orm";
+import { requestStatus, requests } from "./db/schema";
+
 export const MONTHS = [
   "Jan",
   "Feb",
@@ -25,3 +28,57 @@ export function toIsoDate(value: string) {
 
   throw new Error("One of the dates is not valid.");
 }
+
+export function buildSearch(q?: string) {
+  const text = q?.trim();
+  if (!text) return {};
+
+  const terms = text
+    .split(/\s+/)
+    .map((t) => t.replace(/[^\p{L}\p{N}]/gu, ""))
+    .filter(Boolean);
+  const tsquery = terms.map((t) => `${t}:*`).join(" & ");
+
+  const matches = tsquery
+    ? sql`${requests.searchVector} @@ to_tsquery('simple', ${tsquery})`
+    : undefined;
+  const rank = tsquery
+    ? sql`ts_rank(${requests.searchVector}, to_tsquery('simple', ${tsquery}))`
+    : undefined;
+
+  const ref = /^(?:nt-?)?(\d{1,9})$/i.exec(text);
+  const byReference = ref
+    ? eq(requests.referenceNumber, Number(ref[1]))
+    : undefined;
+
+  return { where: or(matches, byReference), rank };
+}
+
+export const dateFmt = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export const formatDate = (value?: string | Date | null) => {
+  if (!value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? String(value) : dateFmt.format(d);
+};
+export const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+export const yesNo = (v: boolean) => (v ? "Yes" : "No");
+export const reference = (n: number) => `NT-${String(n).padStart(4, "0")}`;
+export const fullName = (r: {
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+}) => [r.firstName, r.middleName, r.lastName].filter(Boolean).join(" ");
+
+export const PAGE_SIZE = 10;
+
+export const isStatus = (v?: string): v is Status =>
+  !!v && (requestStatus.enumValues as readonly string[]).includes(v);
+export const isUuid = (v?: string): v is string =>
+  !!v &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);

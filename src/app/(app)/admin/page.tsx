@@ -1,36 +1,13 @@
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  getTableColumns,
-  or,
-  sql,
-} from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import Pagination from "@/components/pagination";
-import { db } from "@/lib/db/index"; // your Drizzle instance (the one Better Auth uses)
-import { requestChildren, requestStatus, requests } from "@/lib/db/schema";
+import { getRequest, getRequests } from "@/lib/cached";
+import { requestStatus } from "@/lib/db/schema";
+import * as Utils from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Requests" };
-
-/* ----------------------------------- Types ---------------------------------- */
-
-type Status = (typeof requestStatus.enumValues)[number];
-type SearchParams = Promise<{
-  page?: string;
-  status?: string;
-  q?: string;
-  id?: string;
-}>;
-type Params = Awaited<SearchParams>;
-type RequestDetail = NonNullable<Awaited<ReturnType<typeof getRequest>>>;
-
-const PAGE_SIZE = 8;
 
 const statusLabels: Record<Status, string> = {
   new: "New",
@@ -46,131 +23,6 @@ const statusStyles: Record<Status, string> = {
   booked: "bg-ink text-sand",
 };
 
-const isStatus = (v?: string): v is Status =>
-  !!v && (requestStatus.enumValues as readonly string[]).includes(v);
-const isUuid = (v?: string): v is string =>
-  !!v &&
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
-
-/* ------------------------------------ Data ----------------------------------- */
-
-// Name, email and employer go through the generated tsvector (prefix matching, so it works
-// while typing). References like "NT-0142" or "142" are matched with an equality check.
-function buildSearch(q?: string) {
-  const text = q?.trim();
-  if (!text) return {};
-
-  const terms = text
-    .split(/\s+/)
-    .map((t) => t.replace(/[^\p{L}\p{N}]/gu, ""))
-    .filter(Boolean);
-  const tsquery = terms.map((t) => `${t}:*`).join(" & ");
-
-  const matches = tsquery
-    ? sql`${requests.searchVector} @@ to_tsquery('simple', ${tsquery})`
-    : undefined;
-  const rank = tsquery
-    ? sql`ts_rank(${requests.searchVector}, to_tsquery('simple', ${tsquery}))`
-    : undefined;
-
-  const ref = /^(?:nt-?)?(\d{1,9})$/i.exec(text);
-  const byReference = ref
-    ? eq(requests.referenceNumber, Number(ref[1]))
-    : undefined;
-
-  return { where: or(matches, byReference), rank };
-}
-
-async function getRequests(opts: {
-  page: number;
-  status?: Status;
-  q?: string;
-}) {
-  const search = buildSearch(opts.q);
-  const where = and(
-    opts.status ? eq(requests.status, opts.status) : undefined,
-    search.where,
-  );
-
-  const [{ total }] = await db
-    .select({ total: count() })
-    .from(requests)
-    .where(where);
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const page = Math.min(opts.page, totalPages);
-
-  // Only the columns the list shows; never the encrypted passport number
-  const rows = await db
-    .select({
-      id: requests.id,
-      referenceNumber: requests.referenceNumber,
-      status: requests.status,
-      firstName: requests.firstName,
-      middleName: requests.middleName,
-      lastName: requests.lastName,
-      email: requests.email,
-      submittedAt: requests.submittedAt,
-    })
-    .from(requests)
-    .where(where)
-    .orderBy(
-      ...(search.rank ? [desc(search.rank)] : []),
-      desc(requests.submittedAt),
-    )
-    .limit(PAGE_SIZE)
-    .offset((page - 1) * PAGE_SIZE);
-
-  return { rows, total, page, totalPages };
-}
-
-async function getRequest(id: string) {
-  // Leave out the encrypted passport number and the search vector
-  const {
-    passportNumberEnc: _enc,
-    searchVector: _vec,
-    ...columns
-  } = getTableColumns(requests);
-
-  const [row] = await db
-    .select(columns)
-    .from(requests)
-    .where(eq(requests.id, id))
-    .limit(1);
-  if (!row) return undefined;
-
-  const children = await db
-    .select()
-    .from(requestChildren)
-    .where(eq(requestChildren.requestId, id))
-    .orderBy(asc(requestChildren.position));
-
-  return { ...row, children };
-}
-
-/* ---------------------------------- Helpers ---------------------------------- */
-
-// Date-only values are stored as yyyy-MM-dd, so format them in UTC to avoid off-by-one days
-const dateFmt = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-const formatDate = (value?: string | Date | null) => {
-  if (!value) return "—";
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? String(value) : dateFmt.format(d);
-};
-const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-const yesNo = (v: boolean) => (v ? "Yes" : "No");
-const reference = (n: number) => `NT-${String(n).padStart(4, "0")}`;
-const fullName = (r: {
-  firstName: string;
-  middleName: string | null;
-  lastName: string;
-}) => [r.firstName, r.middleName, r.lastName].filter(Boolean).join(" ");
-
-// Builds a /admin URL from the current params plus changes
 const href = (sp: Params, patch: Partial<Params>) => {
   const qs = new URLSearchParams();
   for (const [k, v] of Object.entries({ ...sp, ...patch })) if (v) qs.set(k, v);
@@ -178,15 +30,13 @@ const href = (sp: Params, patch: Partial<Params>) => {
   return s ? `/admin?${s}` : "/admin";
 };
 
-/* ------------------------------------ Page ----------------------------------- */
-
-export default async function DashboardPage({
+export default async function Page({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
   const sp = await searchParams;
-  const status = isStatus(sp.status) ? sp.status : undefined;
+  const status = Utils.isStatus(sp.status) ? sp.status : undefined;
   const requestedPage = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
 
   const { rows, total, page, totalPages } = await getRequests({
@@ -196,12 +46,12 @@ export default async function DashboardPage({
   });
 
   // The chosen request, falling back to the first one on the page
-  const chosen = isUuid(sp.id) ? await getRequest(sp.id) : undefined;
+  const chosen = Utils.isUuid(sp.id) ? await getRequest(sp.id) : undefined;
   const selected =
     chosen ?? (rows[0] ? await getRequest(rows[0].id) : undefined);
 
-  const from = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-  const to = Math.min(page * PAGE_SIZE, total);
+  const from = total === 0 ? 0 : (page - 1) * Utils.PAGE_SIZE + 1;
+  const to = Math.min(page * Utils.PAGE_SIZE, total);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -227,7 +77,6 @@ export default async function DashboardPage({
           Export CSV
         </a>
       </header>
-
       <nav
         aria-label="Filter by status"
         className="flex flex-none gap-6 overflow-x-auto border-b border-sand-300 px-6"
@@ -247,7 +96,6 @@ export default async function DashboardPage({
           </Link>
         ))}
       </nav>
-
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         {/* List */}
         <section className="flex min-w-0 flex-1 flex-col lg:overflow-auto">
@@ -281,15 +129,15 @@ export default async function DashboardPage({
                         aria-current={isSelected ? "true" : undefined}
                         className="block truncate text-[15px] font-semibold after:absolute after:inset-0"
                       >
-                        {fullName(r)}
+                        {Utils.fullName(r)}
                       </Link>
                       <div className="mt-0.5 text-[13px] text-stone">
-                        {reference(r.referenceNumber)}
+                        {Utils.reference(r.referenceNumber)}
                       </div>
                     </div>
                     <span className="hidden truncate md:block">{r.email}</span>
                     <span className="hidden md:block">
-                      {formatDate(r.submittedAt)}
+                      {Utils.formatDate(r.submittedAt)}
                     </span>
                     <span>
                       <StatusPill status={r.status} />
@@ -299,7 +147,6 @@ export default async function DashboardPage({
               })}
             </ul>
           )}
-
           <div className="mt-auto flex flex-col items-center gap-4 px-6 py-8">
             <p className="text-[13px] text-stone">
               {total === 0 ? "No results" : `Showing ${from}–${to} of ${total}`}
@@ -324,7 +171,6 @@ export default async function DashboardPage({
             </Suspense>
           </div>
         </section>
-
         {/* Detail */}
         <aside
           aria-label="Request details"
@@ -342,8 +188,6 @@ export default async function DashboardPage({
     </div>
   );
 }
-
-/* --------------------------------- Components -------------------------------- */
 
 function StatusPill({ status }: { status: Status }) {
   return (
@@ -384,7 +228,7 @@ function Field({
 }
 
 function Detail({ r }: { r: RequestDetail }) {
-  const ref = reference(r.referenceNumber);
+  const ref = Utils.reference(r.referenceNumber);
 
   return (
     <>
@@ -392,10 +236,10 @@ function Detail({ r }: { r: RequestDetail }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="font-display text-[28px] tracking-[-0.01em]">
-              {fullName(r)}
+              {Utils.fullName(r)}
             </h2>
             <p className="mt-1.5 text-[13px] text-stone">
-              {ref} · Submitted {formatDate(r.submittedAt)}
+              {ref} · Submitted {Utils.formatDate(r.submittedAt)}
             </p>
           </div>
           <StatusPill status={r.status} />
@@ -407,27 +251,24 @@ function Detail({ r }: { r: RequestDetail }) {
           Email applicant
         </a>
       </div>
-
       <Section title="Personal details">
-        <Field label="Full name">{fullName(r)}</Field>
-        <Field label="Date of birth">{formatDate(r.dateOfBirth)}</Field>
-        <Field label="Marital status">{titleCase(r.maritalStatus)}</Field>
+        <Field label="Full name">{Utils.fullName(r)}</Field>
+        <Field label="Date of birth">{Utils.formatDate(r.dateOfBirth)}</Field>
+        <Field label="Marital status">{Utils.titleCase(r.maritalStatus)}</Field>
         {r.maritalStatus === "married" && (
           <>
             <Field label="Spouse">{r.spouseName}</Field>
             <Field label="Spouse's date of birth">
-              {formatDate(r.spouseDateOfBirth)}
+              {Utils.formatDate(r.spouseDateOfBirth)}
             </Field>
           </>
         )}
       </Section>
-
       <Section title="Passport">
         <Field label="Passport number">•••• {r.passportLast4}</Field>
-        <Field label="Issued">{formatDate(r.passportIssueDate)}</Field>
-        <Field label="Expires">{formatDate(r.passportExpiryDate)}</Field>
+        <Field label="Issued">{Utils.formatDate(r.passportIssueDate)}</Field>
+        <Field label="Expires">{Utils.formatDate(r.passportExpiryDate)}</Field>
       </Section>
-
       <Section title="Contact">
         <Field label="Phone">{r.phone}</Field>
         <Field label="Email">{r.email}</Field>
@@ -435,7 +276,6 @@ function Detail({ r }: { r: RequestDetail }) {
           {r.homeAddress}
         </Field>
       </Section>
-
       <Section title="Employment">
         <Field label="Employer">{r.employerName}</Field>
         <Field label="Employer email">{r.employerEmail}</Field>
@@ -443,24 +283,24 @@ function Detail({ r }: { r: RequestDetail }) {
           {r.employerAddress}
         </Field>
       </Section>
-
       <Section title="Family">
         <Field label="Mother">{r.motherName}</Field>
-        <Field label="Born">{formatDate(r.motherDateOfBirth)}</Field>
+        <Field label="Born">{Utils.formatDate(r.motherDateOfBirth)}</Field>
         <Field label="Father">{r.fatherName}</Field>
-        <Field label="Born">{formatDate(r.fatherDateOfBirth)}</Field>
+        <Field label="Born">{Utils.formatDate(r.fatherDateOfBirth)}</Field>
         <Field label="Children" wide>
           {r.children.length === 0
             ? "None"
             : r.children
-                .map((c) => `${c.fullName} (${formatDate(c.dateOfBirth)})`)
+                .map(
+                  (c) => `${c.fullName} (${Utils.formatDate(c.dateOfBirth)})`,
+                )
                 .join(", ")}
         </Field>
       </Section>
-
       <Section title="Visa history">
-        <Field label="Ever refused a visa">{yesNo(r.visaRefused)}</Field>
-        <Field label="Ever issued a visa">{yesNo(r.visaIssued)}</Field>
+        <Field label="Ever refused a visa">{Utils.yesNo(r.visaRefused)}</Field>
+        <Field label="Ever issued a visa">{Utils.yesNo(r.visaIssued)}</Field>
       </Section>
     </>
   );
