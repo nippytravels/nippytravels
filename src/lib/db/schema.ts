@@ -103,15 +103,12 @@ export const requests = pgTable(
   "requests",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-
     // Shown as NT-0142: format with `NT-${String(n).padStart(4, "0")}`
     referenceNumber: integer("reference_number")
       .generatedAlwaysAsIdentity({ startWith: 1 })
       .notNull()
       .unique(),
-
     status: requestStatus("status").notNull().default("new"),
-
     // Personal details
     firstName: text("first_name").notNull(),
     middleName: text("middle_name"),
@@ -120,7 +117,6 @@ export const requests = pgTable(
     maritalStatus: maritalStatus("marital_status").notNull(),
     spouseName: text("spouse_name"),
     spouseDateOfBirth: date("spouse_date_of_birth", { mode: "string" }),
-
     // Passport: the number is stored encrypted, the UI only ever shows the last 4
     passportNumberEnc: text("passport_number_enc").notNull(),
     passportLast4: varchar("passport_last4", { length: 4 }).notNull(),
@@ -130,17 +126,14 @@ export const requests = pgTable(
     passportExpiryDate: date("passport_expiry_date", {
       mode: "string",
     }).notNull(),
-
     // Contact
     homeAddress: text("home_address").notNull(),
     phone: text("phone").notNull(),
     email: text("email").notNull(),
-
     // Employment
     employerName: text("employer_name").notNull(),
     employerAddress: text("employer_address").notNull(),
     employerEmail: text("employer_email").notNull(),
-
     // Parents
     motherName: text("mother_name").notNull(),
     motherDateOfBirth: date("mother_date_of_birth", {
@@ -150,22 +143,21 @@ export const requests = pgTable(
     fatherDateOfBirth: date("father_date_of_birth", {
       mode: "string",
     }).notNull(),
-
     // Visa history (the form's Yes / No answers)
     visaRefused: boolean("visa_refused").notNull(),
     visaIssued: boolean("visa_issued").notNull(),
-
-    // Full text search: names (A), email (B), employer (C).
+    // Full text search: names (A), email (B), employer (C), referenceNumber (D) or last 4 numbers of passport number (E).
     // 'simple' config on purpose: it doesn't stem, which would mangle names.
     // Reference numbers aren't included; look those up with an equality check.
     searchVector: tsVector("search_vector").generatedAlwaysAs(
       (): SQL => sql`
         setweight(to_tsvector('simple', coalesce(${requests.firstName}, '') || ' ' || coalesce(${requests.middleName}, '') || ' ' || coalesce(${requests.lastName}, '')), 'A') ||
         setweight(to_tsvector('simple', coalesce(${requests.email}, '')), 'B') ||
-        setweight(to_tsvector('simple', coalesce(${requests.employerName}, '')), 'C')
+        setweight(to_tsvector('simple', coalesce(${requests.employerName}, '')), 'C')||
+        setweight(to_tsvector('simple', coalesce(${requests.referenceNumber},'')),'D')||
+        setweight(to_tsvector('simple', coalesce(${requests.passportLast4},'')),'E')
       `,
     ),
-
     submittedAt: timestamp("submitted_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -185,7 +177,6 @@ export const requests = pgTable(
     index("requests_email_idx").on(t.email),
     // Dashboard search
     index("requests_search_idx").using("gin", t.searchVector),
-
     check(
       "requests_spouse_when_married",
       sql`${t.maritalStatus} <> 'married' OR (${t.spouseName} IS NOT NULL AND ${t.spouseDateOfBirth} IS NOT NULL)`,
@@ -212,8 +203,6 @@ export const requestChildren = pgTable(
   (t) => [index("request_children_request_id_idx").on(t.requestId)],
 );
 
-/* -------------------------------- Relations -------------------------------- */
-
 export const requestsRelations = relations(requests, ({ many }) => ({
   children: many(requestChildren),
 }));
@@ -227,10 +216,3 @@ export const requestChildrenRelations = relations(
     }),
   }),
 );
-
-/* ---------------------------------- Types ---------------------------------- */
-
-export type RequestRow = typeof requests.$inferSelect;
-export type NewRequestRow = typeof requests.$inferInsert;
-export type RequestChildRow = typeof requestChildren.$inferSelect;
-export type NewRequestChildRow = typeof requestChildren.$inferInsert;
