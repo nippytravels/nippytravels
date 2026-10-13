@@ -217,7 +217,7 @@ function FamilyFields() {
           type="date"
           placeholder="Pick a date"
         />
-        <FormInput
+        <FormInput // mobile: drawer
           control={control}
           name="fatherName"
           label="Father's full name"

@@ -51,7 +51,7 @@ const approach: Point[] = [
 const btn =
   "inline-flex min-h-[52px] w-full items-center justify-center rounded-full px-6 text-base font-semibold transition md:min-h-12 md:w-auto md:px-[26px] md:text-[15px]";
 const btnPrimary = `${btn} border border-clay bg-clay text-white hover:brightness-110`;
-const btnOutline = `${btn} border border-sand-400 text-ink hover:bg-sand-100`;
+const btnOutline = `${btn} border border-sand-400 text-ink hover:bg-sand-100 bg-white`;
 const btnOnDark = `${btn} border border-ink-500 text-sand hover:bg-ink-800`;
 
 const eyebrow =
@@ -63,9 +63,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-
       <main>
-        {/* Hero */}
         <section className="mx-auto max-w-[1080px] px-8 pb-8 pt-18 md:pb-10 md:pt-28 md:text-center">
           <p className={eyebrow}>Your express travel management agency</p>
           <h1 className="font-display text-[46px] leading-[1.05] tracking-[-0.025em] md:mx-auto md:max-w-[860px] md:text-[76px] md:leading-[1.02]">
@@ -130,8 +128,6 @@ export default function Home() {
             />
           </svg>
         </section>
-
-        {/* Services */}
         <section
           id="services"
           className="mx-auto max-w-[1080px] px-8 pb-6 pt-22 md:pb-10 md:pt-24"
@@ -159,7 +155,6 @@ export default function Home() {
             ))}
           </ol>
         </section>
-        {/* Approach */}
         <section
           id="approach"
           className="mx-auto max-w-[1080px] px-8 pb-24 pt-22 md:pb-28 md:pt-24"
@@ -182,7 +177,6 @@ export default function Home() {
             ))}
           </div>
         </section>
-        {/* Contact */}
         <section id="contact" className="bg-ink">
           <div className="mx-auto max-w-[1080px] px-8 py-24 md:grid md:grid-cols-[1fr_1.1fr] md:items-start md:gap-20 md:py-28">
             <div>
@@ -229,7 +223,7 @@ function SiteHeader() {
       <div className="mx-auto flex h-20 max-w-[1080px] items-center justify-between px-8 md:h-22">
         <Link
           href="/"
-          className="font-display text-[22px] tracking-tight text-ink md:text-2xl"
+          className="font-display text-[22px] font-bold tracking-tight text-ink md:text-2xl"
         >
           Nippy Travels
         </Link>
@@ -246,66 +240,62 @@ function SiteHeader() {
         </nav>
         <a
           href="#contact"
-          className="hidden md:lg:xl:inline-flex min-h-11 items-center justify-center rounded-full border border-sand-400 px-5 text-[15px] font-semibold text-ink transition hover:bg-sand-100"
+          className="hidden bg-white custom-inset md:lg:xl:inline-flex min-h-11 items-center justify-center rounded-full border border-sand-400 px-5 text-[15px] font-semibold text-ink transition hover:bg-sand-100"
         >
           Book an appointment
         </a>
-        {/* Mobile menu */}
-        <Menu.Root>
-          <Menu.Trigger
-            aria-label="Menu"
-            render={
-              <button type="button" className="flex md:lg:xl:hidden">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                  className="text-ink"
-                >
-                  <path
-                    d="M4 8h16M4 16h16"
-                    className="group-data-[popup-open]:hidden"
-                  />
-                  <path
-                    d="M6 6l12 12M18 6L6 18"
-                    className="hidden group-data-[popup-open]:block"
-                  />
-                </svg>
-              </button>
-            }
-          />
-          <Menu.Portal>
-            <Menu.Positioner
-              align="end"
-              sideOffset={8}
-              className="z-20 outline-none"
-            >
-              <Menu.Popup className="w-[min(20rem,calc(100vw-4rem))] origin-[var(--transform-origin)] rounded-2xl border border-sand-300 bg-sand p-2 shadow-[0_20px_50px_rgba(26,46,32,0.12)] outline-none transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
-                {links.map((l) => (
+        <div className="bg-blue-500 inline-flex md:lg:xl:hidden">
+          <Menu.Root>
+            <Menu.Trigger aria-label="Menu">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+                className="text-ink"
+              >
+                <path
+                  d="M4 8h16M4 16h16"
+                  className="group-data-[popup-open]:hidden"
+                />
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  className="hidden group-data-[popup-open]:block"
+                />
+              </svg>
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner
+                align="end"
+                sideOffset={8}
+                className="z-20 outline-none"
+              >
+                <Menu.Popup className="w-[min(20rem,calc(100vw-4rem))] origin-[var(--transform-origin)] rounded-2xl border border-sand-300 bg-sand p-2 shadow-[0_20px_50px_rgba(26,46,32,0.12)] outline-none transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
+                  {links.map((l) => (
+                    <Menu.Item
+                      key={l.href}
+                      render={<a href={l.href} />}
+                      className={menuItem}
+                    >
+                      {l.label}
+                    </Menu.Item>
+                  ))}
+                  <Menu.Separator className="mx-2 my-2 h-px bg-sand-300" />
                   <Menu.Item
-                    key={l.href}
-                    render={<a href={l.href} />}
-                    className={menuItem}
+                    render={<a href="#contact" />}
+                    className="flex min-h-[52px] cursor-pointer select-none items-center justify-center rounded-full border border-clay bg-clay text-base font-semibold text-white outline-none data-[highlighted]:brightness-110"
                   >
-                    {l.label}
+                    Book an appointment
                   </Menu.Item>
-                ))}
-                <Menu.Separator className="mx-2 my-2 h-px bg-sand-300" />
-                <Menu.Item
-                  render={<a href="#contact" />}
-                  className="flex min-h-[52px] cursor-pointer select-none items-center justify-center rounded-full border border-clay bg-clay text-base font-semibold text-white outline-none data-[highlighted]:brightness-110"
-                >
-                  Book an appointment
-                </Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>
       </div>
     </header>
   );
