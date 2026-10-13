@@ -1,5 +1,5 @@
 {
-  "id": "42ee03f7-9489-4b15-8320-836255d6f73d",
+  "id": "04a98919-086b-4971-a459-ec3b77b07a4d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -109,18 +109,125 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.forms": {
-      "name": "forms",
+    "public.request_children": {
+      "name": "request_children",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "uuid",
+          "primaryKey": false,
           "notNull": true
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_of_birth": {
+          "name": "date_of_birth",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "request_children_request_id_idx": {
+          "name": "request_children_request_id_idx",
+          "columns": [
+            {
+              "expression": "request_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "request_children_request_id_requests_id_fk": {
+          "name": "request_children_request_id_requests_id_fk",
+          "tableFrom": "request_children",
+          "tableTo": "requests",
+          "columnsFrom": [
+            "request_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.requests": {
+      "name": "requests",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "reference_number": {
+          "name": "reference_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "requests_reference_number_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "status": {
+          "name": "status",
+          "type": "request_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'new'"
         },
         "first_name": {
           "name": "first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "middle_name": {
+          "name": "middle_name",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -129,55 +236,20 @@
           "name": "last_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
-        },
-        "middle_name": {
-          "name": "middle_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "date_of_birth": {
           "name": "date_of_birth",
-          "type": "text",
+          "type": "date",
           "primaryKey": false,
-          "notNull": false
-        },
-        "passport_number": {
-          "name": "passport_number",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "passport_issue_date": {
-          "name": "passport_issue_date",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "passport_expiry": {
-          "name": "passport_expiry",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "marital_status": {
           "name": "marital_status",
-          "type": "text",
+          "type": "marital_status",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": false
-        },
-        "phone_number": {
-          "name": "phone_number",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "spouse_name": {
           "name": "spouse_name",
@@ -187,94 +259,170 @@
         },
         "spouse_date_of_birth": {
           "name": "spouse_date_of_birth",
-          "type": "text",
+          "type": "date",
           "primaryKey": false,
           "notNull": false
         },
-        "mother_full_name": {
-          "name": "mother_full_name",
+        "passport_number_enc": {
+          "name": "passport_number_enc",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "father_full_name": {
-          "name": "father_full_name",
-          "type": "text",
+        "passport_last4": {
+          "name": "passport_last4",
+          "type": "varchar(4)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "father_date_of_birth": {
-          "name": "father_date_of_birth",
-          "type": "text",
+        "passport_issue_date": {
+          "name": "passport_issue_date",
+          "type": "date",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "mother_date_of_birth": {
-          "name": "mother_date_of_birth",
+        "passport_expiry_date": {
+          "name": "passport_expiry_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "home_address": {
+          "name": "home_address",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "employer_name": {
           "name": "employer_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "employer_address": {
           "name": "employer_address",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "employer_email_address": {
-          "name": "employer_email_address",
+        "employer_email": {
+          "name": "employer_email",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "previously_refused": {
-          "name": "previously_refused",
+        "mother_name": {
+          "name": "mother_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mother_date_of_birth": {
+          "name": "mother_date_of_birth",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "father_name": {
+          "name": "father_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "father_date_of_birth": {
+          "name": "father_date_of_birth",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "visa_refused": {
+          "name": "visa_refused",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
-          "default": false
+          "notNull": true
         },
-        "previously_issued": {
-          "name": "previously_issued",
+        "visa_issued": {
+          "name": "visa_issued",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
-          "default": false
+          "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "search": {
-          "name": "search",
+        "search_vector": {
+          "name": "search_vector",
           "type": "tsvector",
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "\n      setweight(to_tsvector('english', \"forms\".\"email\"), 'A') ||\n      setweight(to_tsvector('english', \"forms\".\"passport_number\"), 'B')\n    ",
+            "as": "\n        setweight(to_tsvector('simple', coalesce(\"requests\".\"first_name\", '') || ' ' || coalesce(\"requests\".\"middle_name\", '') || ' ' || coalesce(\"requests\".\"last_name\", '')), 'A') ||\n        setweight(to_tsvector('simple', coalesce(\"requests\".\"email\", '')), 'B') ||\n        setweight(to_tsvector('simple', coalesce(\"requests\".\"employer_name\", '')), 'C')\n      ",
             "type": "stored"
           }
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
-        "email_index": {
-          "name": "email_index",
+        "requests_submitted_at_idx": {
+          "name": "requests_submitted_at_idx",
+          "columns": [
+            {
+              "expression": "submitted_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "requests_status_submitted_at_idx": {
+          "name": "requests_status_submitted_at_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "submitted_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "requests_email_idx": {
+          "name": "requests_email_idx",
           "columns": [
             {
               "expression": "email",
@@ -288,11 +436,11 @@
           "method": "btree",
           "with": {}
         },
-        "form_search_index": {
-          "name": "form_search_index",
+        "requests_search_idx": {
+          "name": "requests_search_idx",
           "columns": [
             {
-              "expression": "search",
+              "expression": "search_vector",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -307,37 +455,25 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "forms_passport_number_unique": {
-          "name": "forms_passport_number_unique",
+        "requests_reference_number_unique": {
+          "name": "requests_reference_number_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "passport_number"
-          ]
-        },
-        "forms_passport_issue_date_unique": {
-          "name": "forms_passport_issue_date_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "passport_issue_date"
-          ]
-        },
-        "forms_phone_number_unique": {
-          "name": "forms_phone_number_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "phone_number"
-          ]
-        },
-        "forms_email_unique": {
-          "name": "forms_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
+            "reference_number"
           ]
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "requests_spouse_when_married": {
+          "name": "requests_spouse_when_married",
+          "value": "\"requests\".\"marital_status\" <> 'married' OR (\"requests\".\"spouse_name\" IS NOT NULL AND \"requests\".\"spouse_date_of_birth\" IS NOT NULL)"
+        },
+        "requests_passport_dates": {
+          "name": "requests_passport_dates",
+          "value": "\"requests\".\"passport_expiry_date\" > \"requests\".\"passport_issue_date\""
+        }
+      },
       "isRLSEnabled": false
     },
     "public.session": {
@@ -570,6 +706,26 @@
     }
   },
   "enums": {
+    "public.marital_status": {
+      "name": "marital_status",
+      "schema": "public",
+      "values": [
+        "single",
+        "married",
+        "divorced",
+        "widowed"
+      ]
+    },
+    "public.request_status": {
+      "name": "request_status",
+      "schema": "public",
+      "values": [
+        "new",
+        "in-review",
+        "awaiting-info",
+        "booked"
+      ]
+    },
     "public.role": {
       "name": "role",
       "schema": "public",

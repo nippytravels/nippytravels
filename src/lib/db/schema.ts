@@ -1,17 +1,27 @@
-import { type SQL, sql } from "drizzle-orm";
+import { relations, type SQL, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   customType,
+  date,
   index,
+  integer,
   pgEnum,
   pgTable,
+  smallint,
   text,
   timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 const tsVector = customType<{ data: string }>({
   dataType: () => "tsvector",
 });
+
+/* ------------------------------------------------------------------------- */
+/* Auth (Better Auth)                                                         */
+/* ------------------------------------------------------------------------- */
 
 export const role = pgEnum("role", ["user", "admin"]);
 
@@ -70,45 +80,157 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at"),
 });
 
-export const form = pgTable(
-  "forms",
+/* ------------------------------------------------------------------------- */
+/* Requests                                                                   */
+/* ------------------------------------------------------------------------- */
+
+// Values match the ones used in the UI, so no mapping is needed
+export const requestStatus = pgEnum("request_status", [
+  "new",
+  "in-review",
+  "awaiting-info",
+  "booked",
+]);
+
+export const maritalStatus = pgEnum("marital_status", [
+  "single",
+  "married",
+  "divorced",
+  "widowed",
+]);
+
+export const requests = pgTable(
+  "requests",
   {
-    id: text("id").primaryKey(),
-    firstName: text("first_name"),
-    lastName: text("last_name"),
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    // Shown as NT-0142: format with `NT-${String(n).padStart(4, "0")}`
+    referenceNumber: integer("reference_number")
+      .generatedAlwaysAsIdentity({ startWith: 1 })
+      .notNull()
+      .unique(),
+
+    status: requestStatus("status").notNull().default("new"),
+
+    // Personal details
+    firstName: text("first_name").notNull(),
     middleName: text("middle_name"),
-    dateOfBirth: text("date_of_birth"),
-    passportNumber: text("passport_number").unique(),
-    passportIssueDate: text("passport_issue_date").unique(),
-    passportExpiry: text("passport_expiry"),
-    maritalStatus: text("marital_status"),
-    phoneNumber: text("phone_number").unique(),
-    email: text("email").unique(),
+    lastName: text("last_name").notNull(),
+    dateOfBirth: date("date_of_birth", { mode: "string" }).notNull(),
+    maritalStatus: maritalStatus("marital_status").notNull(),
     spouseName: text("spouse_name"),
-    spouseDateOfBirth: text("spouse_date_of_birth"),
-    motherFullName: text("mother_full_name"),
-    fatherFullName: text("father_full_name"),
-    fatherDateOfBirth: text("father_date_of_birth"),
-    motherDateOfBirth: text("mother_date_of_birth"),
-    employerName: text("employer_name"),
-    employerAddress: text("employer_address"),
-    employerEmailAddress: text("employer_email_address"),
-    previouslyRefused: boolean("previously_refused").default(false),
-    previouslyIssued: boolean("previously_issued").default(false),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-    search: tsVector("search").generatedAlwaysAs(
+    spouseDateOfBirth: date("spouse_date_of_birth", { mode: "string" }),
+
+    // Passport: the number is stored encrypted, the UI only ever shows the last 4
+    passportNumberEnc: text("passport_number_enc").notNull(),
+    passportLast4: varchar("passport_last4", { length: 4 }).notNull(),
+    passportIssueDate: date("passport_issue_date", {
+      mode: "string",
+    }).notNull(),
+    passportExpiryDate: date("passport_expiry_date", {
+      mode: "string",
+    }).notNull(),
+
+    // Contact
+    homeAddress: text("home_address").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email").notNull(),
+
+    // Employment
+    employerName: text("employer_name").notNull(),
+    employerAddress: text("employer_address").notNull(),
+    employerEmail: text("employer_email").notNull(),
+
+    // Parents
+    motherName: text("mother_name").notNull(),
+    motherDateOfBirth: date("mother_date_of_birth", {
+      mode: "string",
+    }).notNull(),
+    fatherName: text("father_name").notNull(),
+    fatherDateOfBirth: date("father_date_of_birth", {
+      mode: "string",
+    }).notNull(),
+
+    // Visa history (the form's Yes / No answers)
+    visaRefused: boolean("visa_refused").notNull(),
+    visaIssued: boolean("visa_issued").notNull(),
+
+    // Full text search: names (A), email (B), employer (C).
+    // 'simple' config on purpose: it doesn't stem, which would mangle names.
+    // Reference numbers aren't included; look those up with an equality check.
+    searchVector: tsVector("search_vector").generatedAlwaysAs(
       (): SQL => sql`
-      setweight(to_tsvector('english', ${form.email}), 'A') ||
-      setweight(to_tsvector('english', ${form.passportNumber}), 'B')
-    `,
+        setweight(to_tsvector('simple', coalesce(${requests.firstName}, '') || ' ' || coalesce(${requests.middleName}, '') || ' ' || coalesce(${requests.lastName}, '')), 'A') ||
+        setweight(to_tsvector('simple', coalesce(${requests.email}, '')), 'B') ||
+        setweight(to_tsvector('simple', coalesce(${requests.employerName}, '')), 'C')
+      `,
     ),
+
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
-  (tbl) => [
-    index("email_index").on(tbl.email),
-    index("form_search_index").using("gin", tbl.search),
+  (t) => [
+    // Dashboard list: newest first, optionally filtered by status
+    index("requests_submitted_at_idx").on(t.submittedAt.desc()),
+    index("requests_status_submitted_at_idx").on(
+      t.status,
+      t.submittedAt.desc(),
+    ),
+    // Exact email lookups
+    index("requests_email_idx").on(t.email),
+    // Dashboard search
+    index("requests_search_idx").using("gin", t.searchVector),
+
+    check(
+      "requests_spouse_when_married",
+      sql`${t.maritalStatus} <> 'married' OR (${t.spouseName} IS NOT NULL AND ${t.spouseDateOfBirth} IS NOT NULL)`,
+    ),
+    check(
+      "requests_passport_dates",
+      sql`${t.passportExpiryDate} > ${t.passportIssueDate}`,
+    ),
   ],
 );
 
-export type Form = Omit<typeof form.$inferSelect, "search">;
-export type FormSearchResult = Form & { rank: number };
+export const requestChildren = pgTable(
+  "request_children",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    requestId: uuid("request_id")
+      .notNull()
+      .references(() => requests.id, { onDelete: "cascade" }),
+    fullName: text("full_name").notNull(),
+    dateOfBirth: date("date_of_birth", { mode: "string" }).notNull(),
+    // Keeps the order the applicant entered them in
+    position: smallint("position").notNull().default(0),
+  },
+  (t) => [index("request_children_request_id_idx").on(t.requestId)],
+);
+
+/* -------------------------------- Relations -------------------------------- */
+
+export const requestsRelations = relations(requests, ({ many }) => ({
+  children: many(requestChildren),
+}));
+
+export const requestChildrenRelations = relations(
+  requestChildren,
+  ({ one }) => ({
+    request: one(requests, {
+      fields: [requestChildren.requestId],
+      references: [requests.id],
+    }),
+  }),
+);
+
+/* ---------------------------------- Types ---------------------------------- */
+
+export type RequestRow = typeof requests.$inferSelect;
+export type NewRequestRow = typeof requests.$inferInsert;
+export type RequestChildRow = typeof requestChildren.$inferSelect;
+export type NewRequestChildRow = typeof requestChildren.$inferInsert;

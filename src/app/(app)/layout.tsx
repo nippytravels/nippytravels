@@ -1,15 +1,7 @@
-import { Dialog } from "@base-ui/react";
-import { Menu } from "@base-ui/react/menu";
-import { Document, Exit, Magnifier } from "@solar-icons/react/ssr";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { NavLink } from "@/components";
-import { Avatar, Tooltip } from "@/components/atoms";
-import LogoutButton from "@/components/logout-button";
-import { SearchInput } from "@/components/search-input";
-import { searchForms } from "@/lib/actions";
 import { auth } from "@/lib/auth";
-import * as S from "@/lib/db/schema";
+import DashboardShell from "./mixins/dashboard-shell";
 
 const ROOT_DOMAIN = "nippytravels.com";
 const ADMIN_SUBDOMAIN = "admin";
@@ -42,11 +34,10 @@ export default async function Layout({
     redirect(`https://${ROOT_DOMAIN}`); // logged in, but not an admin
   }
 
-  return (
-    <main className="w-full noise-medium h-screen flex flex-col-reverse md:lg:xl:flex-row">
-      {children}
-    </main>
-  );
+  const defaultOpen =
+    (await cookies()).get("dashboard-sidebar")?.value !== "closed";
+
+  return <DashboardShell defaultOpen={defaultOpen}>{children}</DashboardShell>;
 }
 
 function getSubdomain(hostname: string): string | null {
