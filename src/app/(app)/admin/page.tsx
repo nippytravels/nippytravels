@@ -209,12 +209,7 @@ export default async function DashboardPage({
         <h1 className="font-display text-[26px] tracking-[-0.01em] lg:flex-1 lg:text-[30px]">
           Requests
         </h1>
-        <form
-          action="/admin"
-          method="get"
-          role="search"
-          className="w-full lg:w-[300px]"
-        >
+        <form action="/admin" method="get" className="w-full lg:w-[300px]">
           {status && <input type="hidden" name="status" value={status} />}
           <input
             type="search"

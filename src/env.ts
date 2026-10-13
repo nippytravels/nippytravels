@@ -8,6 +8,7 @@ const Env = cleanEnv(process.env, {
   NEXT_PUBLIC_APP_URL: url(),
   DATABASE_URL: url(),
   DATABASE_URL_DIRECT: url(),
+  PASSPORT_ENCRYPTION_KEY: str(),
 });
 
 export default Env;
