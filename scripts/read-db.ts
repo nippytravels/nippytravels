@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
 
-const data = await db.query.form.findMany();
+const data = await db.query.requests.findMany();
 
 console.log({ data });
