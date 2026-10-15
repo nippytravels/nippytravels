@@ -1,5 +1,5 @@
 import type { getRequest } from "./lib/cached";
-import type { requestChildren, requests } from "./lib/db/schema";
+import type { appointments, requestChildren, requests } from "./lib/db/schema";
 
 declare global {
   type Status = (typeof requestStatus.enumValues)[number];
@@ -15,4 +15,6 @@ declare global {
   export type NewRequestRow = typeof requests.$inferInsert;
   export type RequestChildRow = typeof requestChildren.$inferSelect;
   export type NewRequestChildRow = typeof requestChildren.$inferInsert;
+  export type AppointmentRow = typeof appointments.$inferSelect;
+  export type NewAppointmentRow = typeof appointments.$inferInsert;
 }

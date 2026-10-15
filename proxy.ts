@@ -15,13 +15,13 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (subdomain === ADMIN_SUBDOMAIN) {
-    if (!pathname.startsWith("/admin")) {
-      return NextResponse.rewrite(new URL(`/admin${pathname}`, req.url));
+    if (!pathname.startsWith("/dashboard")) {
+      return NextResponse.rewrite(new URL(`/dashboard${pathname}`, req.url));
     }
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/login")) {
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/login")) {
     return NextResponse.rewrite(new URL("/404", req.url));
   }
 

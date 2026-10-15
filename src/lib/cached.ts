@@ -1,7 +1,7 @@
 import { and, asc, count, desc, eq, getTableColumns } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "./db";
-import { requestChildren, requests } from "./db/schema";
+import { appointments, requestChildren, requests } from "./db/schema";
 import * as Utils from "./utils";
 
 export const getRequests = cache(
@@ -64,4 +64,54 @@ export const getRequest = cache(async (id: string) => {
     .orderBy(asc(requestChildren.position));
 
   return { ...row, children };
+});
+
+export const getAppointments = cache(
+  async (opts: { page: number; status?: Status; q?: string }) => {
+    const search = Utils.buildSearch(opts.q);
+    const where = and(
+      opts.status ? eq(appointments.status, opts.status) : undefined,
+      search.where,
+    );
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(appointments)
+      .where(where);
+    const totalPages = Math.max(1, Math.ceil(total / Utils.PAGE_SIZE));
+    const page = Math.min(opts.page, totalPages);
+
+    const rows = await db
+      .select({
+        id: appointments.id,
+        referenceNumber: appointments.referenceNumber,
+        status: appointments.status,
+        email: appointments.email,
+        destination: appointments.destination,
+        travelDate: appointments.travelDate,
+        submittedAt: appointments.submittedAt,
+      })
+      .from(appointments)
+      .where(where)
+      .orderBy(
+        ...(search.rank ? [desc(search.rank)] : []),
+        desc(appointments.submittedAt),
+      )
+      .limit(Utils.PAGE_SIZE)
+      .offset((page - 1) * Utils.PAGE_SIZE);
+
+    return { rows, total, page, totalPages };
+  },
+);
+
+export const getAppointment = cache(async (id: string) => {
+  // Leave out the search vector
+  const { searchVector: _vec, ...columns } = getTableColumns(appointments);
+
+  const [row] = await db
+    .select(columns)
+    .from(appointments)
+    .where(eq(appointments.id, id))
+    .limit(1);
+  return row;
 });

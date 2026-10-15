@@ -9,7 +9,7 @@ import { client } from "./action-client";
 import { db } from "./db";
 import * as Secure from "./secure";
 import * as Utils from "./utils";
-import { LoginSchema, requestSchema } from "./validations";
+import { appointmentSchema, LoginSchema, requestSchema } from "./validations";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -33,7 +33,9 @@ export const login = client
       },
     });
 
-    return redirect(isDev ? "/admin" : "https://admin.nippytravels.com/admin");
+    return redirect(
+      isDev ? "/dashboard" : "https://admin.nippytravels.com/dashboard",
+    );
   });
 
 export const deleteForm = client
@@ -45,7 +47,7 @@ export const deleteForm = client
   .action(async ({ parsedInput }) => {
     await db.delete(S.requests).where(eq(S.requests.id, parsedInput.formId));
 
-    return redirect("/admin");
+    return redirect("/dashboard");
   });
 
 function yesNo(value: string) {
@@ -101,7 +103,6 @@ export const submitRequest = client
       position,
     }));
 
-    // The request and its children are saved together or not at all
     const created = await db.transaction(async (tx) => {
       const [row] = await tx.insert(S.requests).values(values).returning({
         id: S.requests.id,
@@ -116,9 +117,31 @@ export const submitRequest = client
     });
 
     // TODO: notify the owner (email or push) that a new request arrived
-    // NODEMAILER IS BETTER
+    // NODEMAILER IS PROBABLY A BETTER OPTION, COST WISE
 
     return {
       reference: `NT-${String(created.referenceNumber).padStart(4, "0")}`,
+    };
+  });
+
+export const bookAppointment = client
+  .inputSchema(appointmentSchema)
+  .action(async ({ parsedInput: v }) => {
+    const email = v.email.trim().toLowerCase();
+
+    const [row] = await db
+      .insert(S.appointments)
+      .values({
+        email,
+        destination: v.destination.trim(),
+        travelDate: Utils.toIsoDate(v.date),
+      })
+      .returning({ referenceNumber: S.appointments.referenceNumber });
+
+    // TODO: notify the owner (email or push) that a new appointment request arrived
+
+    return {
+      email,
+      reference: `AP-${String(row.referenceNumber).padStart(4, "0")}`,
     };
   });

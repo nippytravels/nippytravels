@@ -153,9 +153,7 @@ export const requests = pgTable(
       (): SQL => sql`
         setweight(to_tsvector('simple', coalesce(${requests.firstName}, '') || ' ' || coalesce(${requests.middleName}, '') || ' ' || coalesce(${requests.lastName}, '')), 'A') ||
         setweight(to_tsvector('simple', coalesce(${requests.email}, '')), 'B') ||
-        setweight(to_tsvector('simple', coalesce(${requests.employerName}, '')), 'C')||
-        setweight(to_tsvector('simple', coalesce(${requests.referenceNumber},'')),'D')||
-        setweight(to_tsvector('simple', coalesce(${requests.passportLast4},'')),'E')
+        setweight(to_tsvector('simple', coalesce(${requests.employerName}, '')), 'C')
       `,
     ),
     submittedAt: timestamp("submitted_at", { withTimezone: true })
@@ -215,4 +213,68 @@ export const requestChildrenRelations = relations(
       references: [requests.id],
     }),
   }),
+);
+
+/* ------------------------------------------------------------------------- */
+/* Appointments (landing page quote / booking form)                           */
+/* ------------------------------------------------------------------------- */
+
+export const appointmentStatus = pgEnum("appointment_status", [
+  "new",
+  "contacted",
+  "scheduled",
+  "completed",
+  "cancelled",
+]);
+
+export const appointments = pgTable(
+  "appointments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    // Shown as AP-0007: format with `AP-${String(n).padStart(4, "0")}`
+    referenceNumber: integer("reference_number")
+      .generatedAlwaysAsIdentity({ startWith: 1 })
+      .notNull()
+      .unique(),
+
+    status: appointmentStatus("status").notNull().default("new"),
+
+    // What the form collects
+    email: text("email").notNull(),
+    destination: text("destination").notNull(),
+    travelDate: date("travel_date", { mode: "string" }).notNull(),
+
+    // Set by the owner once a time has been agreed
+    scheduledFor: timestamp("scheduled_for", { withTimezone: true }),
+    // Owner-only notes, never shown to the applicant
+    notes: text("notes"),
+
+    // Full text search: destination (A), email (B)
+    searchVector: tsVector("search_vector").generatedAlwaysAs(
+      (): SQL => sql`
+        setweight(to_tsvector('simple', coalesce(${appointments.destination}, '')), 'A') ||
+        setweight(to_tsvector('simple', coalesce(${appointments.email}, '')), 'B')
+      `,
+    ),
+
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    // Dashboard list: newest first, optionally filtered by status
+    index("appointments_status_submitted_at_idx").on(
+      t.status,
+      t.submittedAt.desc(),
+    ),
+    index("appointments_email_idx").on(t.email),
+    // Upcoming appointments
+    index("appointments_scheduled_for_idx").on(t.scheduledFor),
+    index("appointments_search_idx").using("gin", t.searchVector),
+  ],
 );

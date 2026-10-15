@@ -139,3 +139,17 @@ export const emptyValues: RequestValues = {
   visaRefused: "",
   visaIssued: "",
 };
+
+export const appointmentSchema = z.object({
+  destination: z.string().trim().min(1, "Enter a destination"),
+  date: z.string().min(1, "Pick a travel date"),
+  email: z.email("Enter a valid email"),
+});
+
+export type AppointmentValues = z.infer<typeof appointmentSchema>;
+
+export const appointmentDefaults: AppointmentValues = {
+  destination: "",
+  date: "",
+  email: "",
+};

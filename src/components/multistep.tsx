@@ -100,6 +100,9 @@ export function Root<TFullData extends FieldValues>({
   children,
   className = "",
   showNavigation = true,
+  nextButtonText = "Next",
+  prevButtonText = "Back",
+  submitButtonText = "Submit request",
   onSubmit,
 }: RootProps<TFullData>) {
   // Extract Step components from children
@@ -144,14 +147,26 @@ export function Root<TFullData extends FieldValues>({
 
     if (currentStep < totalSteps - 1) {
       setCurrentStep((prev) => prev + 1);
-    } else {
-      await methods.handleSubmit(onSubmit)();
+      return;
     }
 
-    if (isValid && currentStep === totalSteps - 1) {
-      await methods.handleSubmit((data) => onSubmit(data))();
-    }
-  }, [trigger, currentFields, currentStep, totalSteps, onSubmit, methods]);
+    // Last step: submit once. If an earlier step has an error (for example a cross-step rule),
+    // jump back to the first step that has one instead of failing silently.
+    await methods.handleSubmit(onSubmit, (errors) => {
+      const index = stepConfigs.findIndex((s) =>
+        s.fields.some((field) => field in errors),
+      );
+      if (index >= 0) setCurrentStep(index);
+    })();
+  }, [
+    trigger,
+    currentFields,
+    currentStep,
+    totalSteps,
+    onSubmit,
+    methods,
+    stepConfigs,
+  ]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) setCurrentStep((prev) => prev - 1);
@@ -195,59 +210,98 @@ export function Root<TFullData extends FieldValues>({
   return (
     <MultiStepContext.Provider value={contextValue}>
       <div className={`multi-step-root ${className}`}>
-        <div className="flex items-center justify-center flex-wrap md:lg:xl:flex-nowrap gap-5 py-3 my-1">
-          {stepConfigs.map((config, idx) => (
-            <Fragment key={config.id}>
-              <div
-                className={`w-full px-5 py-2 uppercase font-medium text-center text-[13px] rounded-full ${idx === currentStep ? "bg-black text-white" : "bg-neutral-100 text-neutral-800"}`}
-              >
-                <span className="whitespace-nowrap shrink-0 font-title tracking-wide">
+        {/* Progress: compact on mobile, pills with connectors from md up */}
+        <div className="mb-8">
+          <div className="md:hidden">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-stone">
+              Step {currentStep + 1} of {totalSteps}
+            </p>
+            <p className="mt-1 font-display text-xl text-ink">
+              {stepConfigs[currentStep]?.title}
+            </p>
+            <div
+              role="progressbar"
+              aria-label="Form progress"
+              aria-valuemin={1}
+              aria-valuemax={totalSteps}
+              aria-valuenow={currentStep + 1}
+              className="mt-3 h-1.5 overflow-hidden rounded-full bg-sand-300"
+            >
+              <motion.div
+                initial={false}
+                animate={{
+                  width: `${((currentStep + 1) / totalSteps) * 100}%`,
+                }}
+                className="h-full rounded-full bg-clay"
+              />
+            </div>
+          </div>
+
+          <ol className="hidden items-center gap-3 md:flex">
+            {stepConfigs.map((config, idx) => (
+              <Fragment key={config.id}>
+                <li
+                  aria-current={idx === currentStep ? "step" : undefined}
+                  className={`flex-none whitespace-nowrap rounded-full px-4 py-2 text-[13px] font-semibold ${
+                    idx === currentStep
+                      ? "bg-ink text-sand"
+                      : idx < currentStep
+                        ? "bg-sage-100 text-sage-800"
+                        : "bg-sand-100 text-stone"
+                  }`}
+                >
                   {idx + 1}. {config.title}
-                </span>
-              </div>
-              {idx !== stepConfigs.length - 1 && (
-                <div className="w-full bg-neutral-100 rounded-full">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{
-                      width:
-                        currentStep === idx + 1 || currentStep > 1 ? "100%" : 0,
-                    }}
-                    className={`p-1 hidden md:lg:xl:flex rounded-md w-full ${currentStep === idx + 1 || currentStep > 1 ? "bg-black/20" : "bg-neutral-200"}`}
-                  />
-                </div>
-              )}
-            </Fragment>
-          ))}
+                </li>
+                {idx !== stepConfigs.length - 1 && (
+                  <li
+                    aria-hidden="true"
+                    className="h-0.5 min-w-4 flex-1 overflow-hidden rounded-full bg-sand-300"
+                  >
+                    <motion.div
+                      initial={false}
+                      animate={{ width: currentStep > idx ? "100%" : "0%" }}
+                      className="h-full bg-sage"
+                    />
+                  </li>
+                )}
+              </Fragment>
+            ))}
+          </ol>
         </div>
-        <div className="multi-step-content my-3">
+
+        <div className="multi-step-content">
           {stepConfigs[currentStep]?.children}
         </div>
+
         {showNavigation && (
-          <div
-            className="multi-step-navigation flex items-center justify-center"
-            style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}
-          >
+          <div className="multi-step-navigation mt-8 flex items-center justify-between gap-3 border-t border-sand-300 pt-6">
             <button
               type="button"
               onClick={prevStep}
               disabled={currentStep === 0 || formState.isSubmitting}
-              className="bg-black text-white rounded-full p-2 text-sm"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full border border-sand-400 bg-white px-5 text-[15px] font-semibold text-ink transition hover:bg-sand-100 disabled:invisible"
             >
               <AltArrowLeft size={16} weight="Outline" />
+              {prevButtonText}
             </button>
             <button
               type="button"
               onClick={nextStep}
               disabled={formState.isSubmitting}
-              className="bg-black text-white rounded-full p-2 text-sm"
+              className="inline-flex min-h-12 min-w-32 items-center justify-center gap-2 rounded-full border border-clay bg-clay px-6 text-[15px] font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
             >
               {formState.isSubmitting ? (
-                <Spinner size={12} color="#FFFFFF" />
+                <Spinner size={14} color="#FFFFFF" />
               ) : isLastStep ? (
-                <CheckCircle size={18} weight="Bold" />
+                <>
+                  {submitButtonText}
+                  <CheckCircle size={18} weight="Bold" />
+                </>
               ) : (
-                <AltArrowRight size={16} weight="Outline" />
+                <>
+                  {nextButtonText}
+                  <AltArrowRight size={16} weight="Outline" />
+                </>
               )}
             </button>
           </div>
@@ -272,25 +326,21 @@ export function Step<TFullData extends FieldValues>(
 export function StepIndicator() {
   const { steps, currentStepIndex, goToStep } = useMultiStepForm();
   return (
-    <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+    <div className="mb-4 flex gap-2">
       {steps.map((step, idx) => (
         <button
           type="button"
           key={step.id}
           onClick={() => goToStep(idx)}
-          style={{
-            width: "2rem",
-            height: "2rem",
-            borderRadius: "50%",
-            background:
-              idx === currentStepIndex
-                ? "blue"
-                : idx < currentStepIndex
-                  ? "green"
-                  : "#ccc",
-            color: "white",
-            border: "none",
-          }}
+          aria-label={`Go to ${step.title}`}
+          aria-current={idx === currentStepIndex ? "step" : undefined}
+          className={`flex size-8 items-center justify-center rounded-full text-sm font-semibold ${
+            idx === currentStepIndex
+              ? "bg-clay text-white"
+              : idx < currentStepIndex
+                ? "bg-ink text-sand"
+                : "bg-sand-100 text-stone"
+          }`}
         >
           {idx < currentStepIndex ? "✓" : idx + 1}
         </button>

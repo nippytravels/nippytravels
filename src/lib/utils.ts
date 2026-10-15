@@ -1,6 +1,8 @@
 import { eq, or, sql } from "drizzle-orm";
 import { requestStatus, requests } from "./db/schema";
 
+export const TIME_ZONE = "Africa/Lagos";
+
 export const MONTHS = [
   "Jan",
   "Feb",
@@ -60,15 +62,30 @@ export const dateFmt = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
   timeZone: "UTC",
 });
+export const dateTimeFmt = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: TIME_ZONE,
+});
+
+export const dayFmt = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: TIME_ZONE,
+});
 
 export const formatDate = (value?: string | Date | null) => {
   if (!value) return "—";
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? String(value) : dateFmt.format(d);
 };
+export const formatDateTime = (d: Date) => dateTimeFmt.format(d);
+export const formatDay = (d: Date) => dayFmt.format(d);
 export const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 export const yesNo = (v: boolean) => (v ? "Yes" : "No");
-export const reference = (n: number) => `NT-${String(n).padStart(4, "0")}`;
+export const reference = (n: number, pref: string = "NT") =>
+  `${pref}-${String(n).padStart(4, "0")}`;
 export const fullName = (r: {
   firstName: string;
   middleName: string | null;
@@ -82,3 +99,10 @@ export const isStatus = (v?: string): v is Status =>
 export const isUuid = (v?: string): v is string =>
   !!v &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+
+export const href = (sp: Params, patch: Partial<Params>) => {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries({ ...sp, ...patch })) if (v) qs.set(k, v);
+  const s = qs.toString();
+  return s ? `/dashboard?${s}` : "/dashboard";
+};

@@ -1,3 +1,4 @@
+CREATE TYPE "public"."appointment_status" AS ENUM('new', 'contacted', 'scheduled', 'completed', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."marital_status" AS ENUM('single', 'married', 'divorced', 'widowed');--> statement-breakpoint
 CREATE TYPE "public"."request_status" AS ENUM('new', 'in-review', 'awaiting-info', 'booked');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('user', 'admin');--> statement-breakpoint
@@ -15,6 +16,24 @@ CREATE TABLE "account" (
 	"password" text,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "appointments" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"reference_number" integer GENERATED ALWAYS AS IDENTITY (sequence name "appointments_reference_number_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"status" "appointment_status" DEFAULT 'new' NOT NULL,
+	"email" text NOT NULL,
+	"destination" text NOT NULL,
+	"travel_date" date NOT NULL,
+	"scheduled_for" timestamp with time zone,
+	"notes" text,
+	"search_vector" "tsvector" GENERATED ALWAYS AS (
+        setweight(to_tsvector('simple', coalesce("appointments"."destination", '')), 'A') ||
+        setweight(to_tsvector('simple', coalesce("appointments"."email", '')), 'B')
+      ) STORED,
+	"submitted_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "appointments_reference_number_unique" UNIQUE("reference_number")
 );
 --> statement-breakpoint
 CREATE TABLE "request_children" (
@@ -104,6 +123,10 @@ CREATE TABLE "verification" (
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "request_children" ADD CONSTRAINT "request_children_request_id_requests_id_fk" FOREIGN KEY ("request_id") REFERENCES "public"."requests"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "appointments_status_submitted_at_idx" ON "appointments" USING btree ("status","submitted_at" DESC NULLS LAST);--> statement-breakpoint
+CREATE INDEX "appointments_email_idx" ON "appointments" USING btree ("email");--> statement-breakpoint
+CREATE INDEX "appointments_scheduled_for_idx" ON "appointments" USING btree ("scheduled_for");--> statement-breakpoint
+CREATE INDEX "appointments_search_idx" ON "appointments" USING gin ("search_vector");--> statement-breakpoint
 CREATE INDEX "request_children_request_id_idx" ON "request_children" USING btree ("request_id");--> statement-breakpoint
 CREATE INDEX "requests_submitted_at_idx" ON "requests" USING btree ("submitted_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "requests_status_submitted_at_idx" ON "requests" USING btree ("status","submitted_at" DESC NULLS LAST);--> statement-breakpoint

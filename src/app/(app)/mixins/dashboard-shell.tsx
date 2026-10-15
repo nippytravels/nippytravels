@@ -12,22 +12,22 @@ type NavItem = { label: string; href: string; d: string };
 const navItems: NavItem[] = [
   {
     label: "Requests",
-    href: "/admin",
+    href: "/dashboard",
     d: "M4 13l2-8h12l2 8v6H4zM4 13h5l1 2h4l1-2h5",
   },
   {
     label: "Appointments",
-    href: "/admin/appointments",
+    href: "/dashboard/appointments",
     d: "M5 6h14v14H5zM5 10h14M9 3v4M15 3v4",
   },
   {
     label: "Bookings",
-    href: "/admin/bookings",
+    href: "/dashboard/bookings",
     d: "M3 8h18v11H3zM9 8V5h6v3",
   },
   {
     label: "Form settings",
-    href: "/admin/settings",
+    href: "/dashboard/settings",
     d: "M4 7h10M18 7h2M4 17h2M10 17h10",
   },
 ];

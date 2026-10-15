@@ -3,13 +3,11 @@
 
 import { Menu } from "@base-ui/react/menu";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { useHookFormAction } from "@next-safe-action/adapter-react-hook-form/hooks";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import type z from "zod";
 import { FormInput } from "@/components/atoms";
-import { QuoteSchema } from "@/lib/validations";
+import { bookAppointment } from "@/lib/actions";
+import { appointmentDefaults, appointmentSchema } from "@/lib/validations";
 
 type Service = { title: string; body: string };
 type Point = { title: string; body: string };
@@ -49,7 +47,7 @@ const approach: Point[] = [
 ];
 
 const btn =
-  "inline-flex min-h-[52px] w-full items-center justify-center rounded-full px-6 text-base font-semibold transition md:min-h-12 md:w-auto md:px-[26px] md:text-[15px]";
+  "inline-flex min-h-[52px] w-full items-center justify-center rounded-full px-6 text-base font-semibold transition md:w-auto md:px-[26px] md:text-[15px]";
 const btnPrimary = `${btn} border border-clay bg-clay text-white hover:brightness-110`;
 const btnOutline = `${btn} border border-sand-400 text-ink hover:bg-sand-100 bg-white`;
 const btnOnDark = `${btn} border border-ink-500 text-sand hover:bg-ink-800`;
@@ -212,6 +210,10 @@ const links: NavLink[] = [
   { href: "#services", label: "Services" },
   { href: "#approach", label: "Approach" },
   { href: "#contact", label: "Contact" },
+  {
+    href: "/request",
+    label: "My Form",
+  },
 ];
 
 const menuItem =
@@ -301,57 +303,72 @@ function SiteHeader() {
   );
 }
 
-type QuoteValues = z.infer<typeof QuoteSchema>;
-
 function QuoteForm() {
-  const router = useRouter();
-  const { control, handleSubmit, formState } = useForm<QuoteValues>({
-    resolver: zodResolver(QuoteSchema),
-    defaultValues: { destination: "", travelDate: "", email: "" },
-  });
+  const { form, action, handleSubmitWithAction } = useHookFormAction(
+    bookAppointment,
+    zodResolver(appointmentSchema),
+    { formProps: { defaultValues: appointmentDefaults } },
+  );
 
-  const onSubmit = (values: QuoteValues) => {
-    const params = new URLSearchParams({
-      destination: values.destination,
-      email: values.email,
-    });
-    const date = new Date(values.travelDate);
-    if (!Number.isNaN(date.getTime()))
-      params.set("date", format(date, "yyyy-MM-dd"));
-    router.push(`/request?${params.toString()}`);
-  };
+  if (action.hasSucceeded) {
+    const email = action.result.data?.email ?? "";
+    return (
+      <div className="mt-10 rounded-[20px] bg-white p-7 md:mt-0 md:p-10">
+        <h3 className="font-display text-[28px] leading-[1.1] tracking-[-0.01em] text-ink">
+          Thank you
+        </h3>
+        <p className="mt-3 text-base leading-[1.7] text-stone">
+          We have your request and will be in touch at {email}.
+        </p>
+        <p className="mt-6 text-base leading-[1.7] text-stone">
+          Want to save time? Send us your details now.
+        </p>
+        <Link
+          href={`/request?email=${encodeURIComponent(email)}`}
+          className={`${btnPrimary} mt-4 md:w-full`}
+        >
+          Fill in my details
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmitWithAction}
       noValidate
       className="mt-10 flex flex-col gap-5 rounded-[20px] bg-white p-7 md:mt-0 md:p-10"
     >
       <FormInput
-        control={control}
+        control={form.control}
         name="destination"
         label="Destination"
         placeholder="Where to?"
       />
       <FormInput
-        control={control}
-        name="travelDate"
+        control={form.control}
+        name="date"
         label="Travel date"
         type="date"
         placeholder="Pick a date"
       />
       <FormInput
-        control={control}
+        control={form.control}
         name="email"
         label="Email"
         placeholder="you@example.com"
       />
+      {action.result.serverError && (
+        <p role="alert" className="text-sm font-medium text-clay-800">
+          {action.result.serverError}
+        </p>
+      )}
       <button
         type="submit"
-        disabled={formState.isSubmitting}
-        className={`${btnPrimary} mt-2 md:w-full`}
+        disabled={action.isPending}
+        className={`${btnPrimary} mt-2 disabled:opacity-60 md:w-full`}
       >
-        Request a quote
+        {action.isPending ? "Sending…" : "Request a quote"}
       </button>
     </form>
   );
