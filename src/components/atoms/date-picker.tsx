@@ -183,7 +183,7 @@ function WheelColumn({
  */
 export default function DateWheelPicker({
   value,
-  minYear = 1950,
+  minYear = 1800,
   maxYear = new Date().getFullYear() + 10,
   onChange,
   className = "",

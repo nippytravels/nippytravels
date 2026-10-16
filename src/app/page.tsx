@@ -196,7 +196,9 @@ export default function Home() {
       <footer className="border-t border-sand-300">
         <div className="mx-auto flex max-w-[1080px] flex-col gap-2.5 px-8 py-14 text-sm text-stone md:min-h-24 md:flex-row md:items-center md:justify-between md:py-0">
           <span className="font-display text-xl text-ink">Nippy Travels</span>
-          <span className="uppercase">nippytravels@gmail.com · [PHONE]</span>
+          <span className="uppercase">
+            nippytravels@gmail.com · (+234) 805 5465 909
+          </span>
           <span>© {new Date().getFullYear()} Nippy Travels</span>
         </div>
       </footer>
